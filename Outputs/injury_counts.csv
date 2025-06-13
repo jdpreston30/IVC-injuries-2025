@@ -1,136 +1,136 @@
-"","ID","Mechanism","IVC_repair_type","IVC_injury_group","Mortality"
-"1",1,"Penetrating","Primary","Infrarenal","Survived"
-"2",2,"Penetrating","Ligation","Infrarenal","Survived"
-"3",3,"Penetrating","Ligation","Infrarenal","Survived"
-"4",4,"Penetrating","Ligation","Infrarenal","Survived"
-"5",5,"Penetrating","Primary","Juxtarenal","Survived"
-"6",6,"Penetrating","Primary","Juxtarenal","Survived"
-"7",7,"Penetrating","Patch","Infrarenal","Survived"
-"8",8,"Penetrating","Primary","Infrarenal","Survived"
-"9",9,"Penetrating","Primary","Infrarenal","> 72h"
-"10",10,"Penetrating","Patch","Infrarenal","Survived"
-"11",11,"Penetrating","Primary","Infrarenal","Survived"
-"12",12,"Penetrating","Primary","Infrarenal","Survived"
-"13",13,"Penetrating","Primary","Infrarenal","Survived"
-"14",14,"Penetrating","Primary","Infrarenal","Survived"
-"15",15,"Penetrating","Primary","Juxtarenal","Survived"
-"16",16,"Penetrating","Primary","Juxtarenal","Survived"
-"17",17,"Penetrating","Patch","Juxtarenal","Survived"
-"18",18,"Penetrating","Primary","Infrarenal","> 72h"
-"19",19,"Penetrating","Primary","Infrarenal","Survived"
-"20",20,"Penetrating","Primary","Juxtarenal","Survived"
-"21",21,"Penetrating","Primary","Juxtarenal","Survived"
-"22",22,"Blunt","Primary","Retrohepatic","Survived"
-"23",23,"Penetrating","Primary","Retrohepatic","Survived"
-"24",24,"Penetrating","Ligation","Infrarenal","Survived"
-"25",25,"Penetrating","Primary","Juxtarenal","> 72h"
-"26",26,"Penetrating","Ligation","Infrarenal","Survived"
-"27",27,"Blunt","Primary","Infrarenal","Survived"
-"28",28,"Penetrating","Ligation","Juxtarenal","> 72h"
-"29",29,"Penetrating","Patch","Infrarenal","Survived"
-"30",30,"Penetrating","Patch","Infrarenal","Survived"
-"31",31,"Penetrating","Primary","Infrarenal","Survived"
-"32",32,"Penetrating","Primary","Juxtarenal","Survived"
-"33",33,"Penetrating","Primary","Infrarenal","Survived"
-"34",34,"Penetrating","Primary","Infrarenal","Survived"
-"35",35,"Penetrating","Primary","Infrarenal","Survived"
-"36",36,"Blunt","Primary","Juxtarenal","Survived"
-"37",37,"Penetrating","Primary","Juxtarenal","Survived"
-"38",37,"Penetrating","Primary","Retrohepatic","Survived"
-"39",38,"Penetrating","Primary","Infrarenal","Survived"
-"40",39,"Penetrating","Primary","Infrarenal","Survived"
-"41",40,"Penetrating","Ligation","Infrarenal","Survived"
-"42",41,"Penetrating","Primary","Infrarenal","Survived"
-"43",42,"Penetrating","Primary","Infrarenal","Survived"
-"44",43,"Penetrating","Primary","Infrarenal","24h - 72h"
-"45",44,"Penetrating","Primary","Infrarenal","Survived"
-"46",45,"Blunt","Primary","Juxtarenal","Survived"
-"47",46,"Penetrating","Ligation","Infrarenal","Survived"
-"48",47,"Penetrating","Primary","Infrarenal","Survived"
-"49",48,"Penetrating","Primary","Juxtarenal","Survived"
-"50",49,"Penetrating","Primary","Infrarenal","> 72h"
-"51",50,"Penetrating","Primary","Infrarenal","Survived"
-"52",51,"Penetrating","Ligation","Infrarenal","Survived"
-"53",52,"Penetrating","Primary","Infrarenal","Survived"
-"54",53,"Penetrating","Primary","Infrarenal","Survived"
-"55",54,"Penetrating","Primary","Infrarenal","Survived"
-"56",55,"Penetrating","Primary","Infrarenal","Survived"
-"57",56,"Penetrating","Primary","Infrarenal","Survived"
-"58",57,"Penetrating","Primary","Infrarenal","Survived"
-"59",58,"Penetrating","Primary","Infrarenal","Survived"
-"60",59,"Penetrating","Ligation","Juxtarenal","> 72h"
-"61",60,"Blunt","Ligation","Infrarenal","Survived"
-"62",61,"Penetrating","Ligation","Infrarenal","Survived"
-"63",62,"Penetrating","Ligation","Infrarenal","Survived"
-"64",63,"Penetrating","Primary","Infrarenal","Survived"
-"65",64,"Penetrating","Patch","Infrarenal","Survived"
-"66",65,"Penetrating","Ligation","Infrarenal","Survived"
-"67",66,"Penetrating","Primary","Juxtarenal","Survived"
-"68",67,"Penetrating","Primary","Infrarenal","Survived"
-"69",68,"Penetrating","Primary","Infrarenal","Survived"
-"70",69,"Penetrating","Primary","Infrarenal","Survived"
-"71",70,"Blunt","Primary","Juxtarenal","24h - 72h"
-"72",71,"Penetrating","Ligation","Infrarenal","24h - 72h"
-"73",72,"Blunt","Primary","Juxtarenal","> 72h"
-"74",73,"Blunt","Primary","Juxtarenal","< 24h"
-"75",74,"Penetrating","Irreparable","Retrohepatic","< 24h"
-"76",75,"Penetrating","Primary","Infrarenal","< 24h"
-"77",76,"Penetrating","Irreparable","Juxtarenal","< 24h"
-"78",77,"Penetrating","Irreparable","Infrarenal","< 24h"
-"79",78,"Penetrating","Ligation","Infrarenal","< 24h"
-"80",79,"Penetrating","Ligation","Infrarenal","< 24h"
-"81",80,"Penetrating","Irreparable","Juxtarenal","< 24h"
-"82",81,"Penetrating","Irreparable","Infrarenal","< 24h"
-"83",82,"Penetrating","Irreparable","Juxtarenal","< 24h"
-"84",83,"Blunt","Irreparable","Infrarenal","< 24h"
-"85",84,"Blunt","Primary","Juxtarenal","< 24h"
-"86",85,"Penetrating","Primary","Juxtarenal","< 24h"
-"87",86,"Penetrating","Irreparable","Suprahepatic","< 24h"
-"88",87,"Penetrating","Patch","Infrarenal","< 24h"
-"89",88,"Blunt","Primary","Suprahepatic","< 24h"
-"90",89,"Penetrating","Irreparable","Retrohepatic","< 24h"
-"91",90,"Penetrating","Ligation","Infrarenal","< 24h"
-"92",91,"Penetrating","Irreparable","Infrarenal","< 24h"
-"93",92,"Penetrating","Irreparable","Retrohepatic","< 24h"
-"94",93,"Penetrating","Ligation","Infrarenal","< 24h"
-"95",94,"Penetrating","Irreparable","Retrohepatic","< 24h"
-"96",95,"Penetrating","Irreparable","Infrarenal","< 24h"
-"97",96,"Penetrating","Ligation","Retrohepatic","< 24h"
-"98",97,"Blunt","Primary","Infrarenal","< 24h"
-"99",98,"Penetrating","Primary","Infrarenal","< 24h"
-"100",99,"Blunt","Ligation","Infrarenal","< 24h"
-"101",100,"Penetrating","Primary","Infrarenal","< 24h"
-"102",101,"Penetrating","Primary","Retrohepatic","< 24h"
-"103",102,"Penetrating","Irreparable","Infrarenal","< 24h"
-"104",103,"Penetrating","Ligation","Infrarenal","< 24h"
-"105",104,"Penetrating","Irreparable","Infrarenal","< 24h"
-"106",105,"Penetrating","Ligation","Infrarenal","< 24h"
-"107",106,"Penetrating","Primary","Juxtarenal","< 24h"
-"108",107,"Penetrating","Irreparable","Juxtarenal","< 24h"
-"109",107,"Penetrating","Irreparable","Suprahepatic","< 24h"
-"110",108,"Penetrating","Ligation","Infrarenal","< 24h"
-"111",109,"Penetrating","Primary","Infrarenal","< 24h"
-"112",110,"Penetrating","Ligation","Infrarenal","< 24h"
-"113",111,"Penetrating","Irreparable","Infrarenal","< 24h"
-"114",112,"Penetrating","Ligation","Infrarenal","< 24h"
-"115",113,"Penetrating","Ligation","Infrarenal","< 24h"
-"116",114,"Penetrating","Irreparable","Juxtarenal","< 24h"
-"117",115,"Penetrating","Other: Temporary Ligation and Allis clamps","Juxtarenal","< 24h"
-"118",115,"Penetrating","Other: Temporary Ligation and Allis clamps","Juxtarenal","< 24h"
-"119",118,"Penetrating","Primary","Infrarenal","Survived"
-"120",119,"Blunt","Primary","Retrohepatic","Survived"
-"121",121,"Penetrating","Primary","Juxtarenal","Survived"
-"122",122,"Penetrating","Primary","Infrarenal","< 24h"
-"123",124,"Penetrating","Primary","Infrarenal","Survived"
-"124",125,"Penetrating","Primary","Infrarenal","< 24h"
-"125",126,"Penetrating","Primary","Retrohepatic","Survived"
-"126",127,"Penetrating","Primary","Infrarenal","Survived"
-"127",128,"Penetrating","Primary","Infrarenal","Survived"
-"128",129,"Penetrating","Ligation","Infrarenal","< 24h"
-"129",130,"Penetrating","Primary","Infrarenal","Survived"
-"130",131,"Penetrating","Irreparable","Retrohepatic","< 24h"
-"131",132,"Penetrating","Primary","Juxtarenal","< 24h"
-"132",134,"Penetrating","Ligation","Infrarenal","< 24h"
-"133",135,"Penetrating","Primary","Infrarenal","Survived"
-"134",136,"Penetrating","Primary","Infrarenal","Survived"
-"135",137,"Blunt","Primary","Juxtarenal","Survived"
+ID,Mechanism,IVC_repair_type,IVC_injury_group,Mortality
+1,Penetrating,Primary,Infrarenal,Survived
+2,Penetrating,Ligation,Infrarenal,Survived
+3,Penetrating,Ligation,Infrarenal,Survived
+4,Penetrating,Ligation,Infrarenal,Survived
+5,Penetrating,Primary,Juxtarenal,Survived
+6,Penetrating,Primary,Juxtarenal,Survived
+7,Penetrating,Patch,Infrarenal,Survived
+8,Penetrating,Primary,Infrarenal,Survived
+9,Penetrating,Primary,Infrarenal,> 72h
+10,Penetrating,Patch,Infrarenal,Survived
+11,Penetrating,Primary,Infrarenal,Survived
+12,Penetrating,Primary,Infrarenal,Survived
+13,Penetrating,Primary,Infrarenal,Survived
+14,Penetrating,Primary,Infrarenal,Survived
+15,Penetrating,Primary,Juxtarenal,Survived
+16,Penetrating,Primary,Juxtarenal,Survived
+17,Penetrating,Patch,Juxtarenal,Survived
+18,Penetrating,Primary,Infrarenal,> 72h
+19,Penetrating,Primary,Infrarenal,Survived
+20,Penetrating,Primary,Juxtarenal,Survived
+21,Penetrating,Primary,Juxtarenal,Survived
+22,Blunt,Primary,Retrohepatic,Survived
+23,Penetrating,Primary,Retrohepatic,Survived
+24,Penetrating,Ligation,Infrarenal,Survived
+25,Penetrating,Primary,Juxtarenal,> 72h
+26,Penetrating,Ligation,Infrarenal,Survived
+27,Blunt,Primary,Infrarenal,Survived
+28,Penetrating,Ligation,Juxtarenal,> 72h
+29,Penetrating,Patch,Infrarenal,Survived
+30,Penetrating,Patch,Infrarenal,Survived
+31,Penetrating,Primary,Infrarenal,Survived
+32,Penetrating,Primary,Juxtarenal,Survived
+33,Penetrating,Primary,Infrarenal,Survived
+34,Penetrating,Primary,Infrarenal,Survived
+35,Penetrating,Primary,Infrarenal,Survived
+36,Blunt,Primary,Juxtarenal,Survived
+37,Penetrating,Primary,Juxtarenal,Survived
+37,Penetrating,Primary,Retrohepatic,Survived
+38,Penetrating,Primary,Infrarenal,Survived
+39,Penetrating,Primary,Infrarenal,Survived
+40,Penetrating,Ligation,Infrarenal,Survived
+41,Penetrating,Primary,Infrarenal,Survived
+42,Penetrating,Primary,Infrarenal,Survived
+43,Penetrating,Primary,Infrarenal,24h - 72h
+44,Penetrating,Primary,Infrarenal,Survived
+45,Blunt,Primary,Juxtarenal,Survived
+46,Penetrating,Ligation,Infrarenal,Survived
+47,Penetrating,Primary,Infrarenal,Survived
+48,Penetrating,Primary,Juxtarenal,Survived
+49,Penetrating,Primary,Infrarenal,> 72h
+50,Penetrating,Primary,Infrarenal,Survived
+51,Penetrating,Ligation,Infrarenal,Survived
+52,Penetrating,Primary,Infrarenal,Survived
+53,Penetrating,Primary,Infrarenal,Survived
+54,Penetrating,Primary,Infrarenal,Survived
+55,Penetrating,Primary,Infrarenal,Survived
+56,Penetrating,Primary,Infrarenal,Survived
+57,Penetrating,Primary,Infrarenal,Survived
+58,Penetrating,Primary,Infrarenal,Survived
+59,Penetrating,Ligation,Juxtarenal,> 72h
+60,Blunt,Ligation,Infrarenal,Survived
+61,Penetrating,Ligation,Infrarenal,Survived
+62,Penetrating,Ligation,Infrarenal,Survived
+63,Penetrating,Primary,Infrarenal,Survived
+64,Penetrating,Patch,Infrarenal,Survived
+65,Penetrating,Ligation,Infrarenal,Survived
+66,Penetrating,Primary,Juxtarenal,Survived
+67,Penetrating,Primary,Infrarenal,Survived
+68,Penetrating,Primary,Infrarenal,Survived
+69,Penetrating,Primary,Infrarenal,Survived
+70,Blunt,Primary,Juxtarenal,24h - 72h
+71,Penetrating,Ligation,Infrarenal,24h - 72h
+72,Blunt,Primary,Juxtarenal,> 72h
+73,Blunt,Primary,Juxtarenal,< 24h
+74,Penetrating,Irreparable,Retrohepatic,< 24h
+75,Penetrating,Primary,Infrarenal,< 24h
+76,Penetrating,Irreparable,Juxtarenal,< 24h
+77,Penetrating,Irreparable,Infrarenal,< 24h
+78,Penetrating,Ligation,Infrarenal,< 24h
+79,Penetrating,Ligation,Infrarenal,< 24h
+80,Penetrating,Irreparable,Juxtarenal,< 24h
+81,Penetrating,Irreparable,Infrarenal,< 24h
+82,Penetrating,Irreparable,Juxtarenal,< 24h
+83,Blunt,Irreparable,Infrarenal,< 24h
+84,Blunt,Primary,Juxtarenal,< 24h
+85,Penetrating,Primary,Juxtarenal,< 24h
+86,Penetrating,Irreparable,Suprahepatic,< 24h
+87,Penetrating,Patch,Infrarenal,< 24h
+88,Blunt,Primary,Suprahepatic,< 24h
+89,Penetrating,Irreparable,Retrohepatic,< 24h
+90,Penetrating,Ligation,Infrarenal,< 24h
+91,Penetrating,Irreparable,Infrarenal,< 24h
+92,Penetrating,Irreparable,Retrohepatic,< 24h
+93,Penetrating,Ligation,Infrarenal,< 24h
+94,Penetrating,Irreparable,Retrohepatic,< 24h
+95,Penetrating,Irreparable,Infrarenal,< 24h
+96,Penetrating,Ligation,Retrohepatic,< 24h
+97,Blunt,Primary,Infrarenal,< 24h
+98,Penetrating,Primary,Infrarenal,< 24h
+99,Blunt,Ligation,Infrarenal,< 24h
+100,Penetrating,Primary,Infrarenal,< 24h
+101,Penetrating,Primary,Retrohepatic,< 24h
+102,Penetrating,Irreparable,Infrarenal,< 24h
+103,Penetrating,Ligation,Infrarenal,< 24h
+104,Penetrating,Irreparable,Infrarenal,< 24h
+105,Penetrating,Ligation,Infrarenal,< 24h
+106,Penetrating,Primary,Juxtarenal,< 24h
+107,Penetrating,Irreparable,Juxtarenal,< 24h
+107,Penetrating,Irreparable,Suprahepatic,< 24h
+108,Penetrating,Ligation,Infrarenal,< 24h
+109,Penetrating,Primary,Infrarenal,< 24h
+110,Penetrating,Ligation,Infrarenal,< 24h
+111,Penetrating,Irreparable,Infrarenal,< 24h
+112,Penetrating,Ligation,Infrarenal,< 24h
+113,Penetrating,Ligation,Infrarenal,< 24h
+114,Penetrating,Irreparable,Juxtarenal,< 24h
+115,Penetrating,Other: Temporary Ligation and Allis clamps,Juxtarenal,< 24h
+115,Penetrating,Other: Temporary Ligation and Allis clamps,Juxtarenal,< 24h
+118,Penetrating,Primary,Infrarenal,Survived
+119,Blunt,Primary,Retrohepatic,Survived
+121,Penetrating,Primary,Juxtarenal,Survived
+122,Penetrating,Primary,Infrarenal,< 24h
+124,Penetrating,Primary,Infrarenal,Survived
+125,Penetrating,Primary,Infrarenal,< 24h
+126,Penetrating,Primary,Retrohepatic,Survived
+127,Penetrating,Primary,Infrarenal,Survived
+128,Penetrating,Primary,Infrarenal,Survived
+129,Penetrating,Ligation,Infrarenal,< 24h
+130,Penetrating,Primary,Infrarenal,Survived
+131,Penetrating,Irreparable,Retrohepatic,< 24h
+132,Penetrating,Primary,Juxtarenal,< 24h
+134,Penetrating,Ligation,Infrarenal,< 24h
+135,Penetrating,Primary,Infrarenal,Survived
+136,Penetrating,Primary,Infrarenal,Survived
+137,Blunt,Primary,Juxtarenal,Survived
