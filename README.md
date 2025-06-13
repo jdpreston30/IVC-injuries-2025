@@ -12,8 +12,7 @@ Make sure you have [Git](https://git-scm.com/) installed. After cloning, you can
 
 ## Requirements
 - R version ≥ 4.3.1
-- Packages: dplyr, tidyr, stringr, readxl, labelled, ggplot2,
-      flextable, officer, tibble, forcats, stats, purrr, broom
+- Packages: dplyr, tidyr, stringr, readxl, labelled, ggplot2,flextable, officer, tibble, forcats, stats, purrr, broom
 
 ## Files
 All elements of the repository are listed below, along with a description and guide of each:
