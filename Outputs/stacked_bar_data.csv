@@ -1,0 +1,14 @@
+"","IVC_repair_type","IVC_injury_group","Survived","Died","Mortality_Percent"
+"1","Irreparable","Suprahepatic",0,2,100
+"2","Primary","Suprahepatic",0,1,100
+"3","Irreparable","Retrohepatic",0,5,58.3333333333333
+"4","Ligation","Retrohepatic",0,1,58.3333333333333
+"5","Primary","Retrohepatic",5,1,58.3333333333333
+"6","Irreparable","Juxtarenal",0,5,53.125
+"7","Ligation","Juxtarenal",0,4,53.125
+"8","Patch","Juxtarenal",1,0,53.125
+"9","Primary","Juxtarenal",14,8,53.125
+"10","Irreparable","Infrarenal",0,8,38.6363636363636
+"11","Ligation","Infrarenal",12,14,38.6363636363636
+"12","Patch","Infrarenal",5,1,38.6363636363636
+"13","Primary","Infrarenal",37,11,38.6363636363636
