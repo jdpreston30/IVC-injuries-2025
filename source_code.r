@@ -23,8 +23,10 @@
     write_out_csv <- function(data, filename) {
       write_csv(data, paste0(output_dir, filename))
     }
+  #+ Set raw data path
+    raw_path <- "/Users/jdp2019/Library/CloudStorage/OneDrive-Emory/Research/Manuscripts and Projects/Grady/IVC/raw_data/IVC_JDP.xlsx"
 #* Import Data
-  final <- read_excel("IVC_JDP.xlsx", sheet = "Final")
+  final <- read_excel(raw_path, sheet = "Final")
 #* Figure 1: Flowchart
   #! Did this entirely in excel
 #* Figure 2: Heatmap
@@ -186,7 +188,7 @@
   #! At this point, arranged data in excel and graphed in Prism
 #* Table 2: VTE Table
   #+ Preprocess all data
-    VTE_days <- read_excel("IVC_JDP.xlsx", sheet = "Final") %>%
+    VTE_days <- read_excel(raw_path, sheet = "Final") %>%
       filter(IVC_repair_type != "Ligation", analyze == "Y") %>%
       # filter(DC_timing!="died after 72h during admission") %>%
       # including the 72h patients in this analysis so commented out
@@ -301,7 +303,7 @@
   #! Manually copied this into word at this point
 #* Table 3: Clinical characteristics with and without VTE
   #+ Pull Numeric Data
-    VTE_clinical_features_i <- read_excel("IVC_JDP.xlsx", sheet = "Final") %>%
+    VTE_clinical_features_i <- read_excel(raw_path, sheet = "Final") %>%
       filter(IVC_repair_type != "Ligation", analyze == "Y") %>%
       # filter(DC_timing!="died after 72h during admission") %>%
       # including the 72h patients in this analysis so commented out
@@ -462,7 +464,7 @@
 #* Figure 4: VTE with Antithrombotic
   #+ Index pre-VTE Analysis
     #- Import Data and preprocess
-      VTE_therapy <- read_excel("IVC_JDP.xlsx", sheet = "Final") %>%
+      VTE_therapy <- read_excel(raw_path, sheet = "Final") %>%
       filter(IVC_repair_type != "Ligation", analyze == "Y") %>%
       # filter(DC_timing!="died after 72h during admission") %>%
       # including the 72h patients in this analysis so commented outadmission") %>%
