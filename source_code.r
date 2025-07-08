@@ -352,6 +352,17 @@
               round(quantile(Value[any_VTE_index_RA == "N"], 0.75, na.rm = TRUE), 1), "]"
             )
           ),
+          Total = case_when(
+            Variable %in% mean_sd_vars ~ paste0(
+              round(mean(Value, na.rm = TRUE), 1), " ± ",
+              round(sd(Value, na.rm = TRUE), 1)
+            ),
+            Variable %in% median_iqr_vars ~ paste0(
+              round(median(Value, na.rm = TRUE), 1), " [",
+              round(quantile(Value, 0.25, na.rm = TRUE), 1), "-",
+              round(quantile(Value, 0.75, na.rm = TRUE), 1), "]"
+            )
+          ),
           p_value = case_when(
             Variable %in% mean_sd_vars ~ ifelse(
               length(unique(Value[any_VTE_index_RA == "Y"])) > 1 &
@@ -389,6 +400,11 @@
             round(quantile(Value[any_VTE_index_RA == "N"], 0.25, na.rm = TRUE), 1), "-",
             round(quantile(Value[any_VTE_index_RA == "N"], 0.75, na.rm = TRUE), 1), "]"
           ),
+          Total = paste0(
+            round(median(Value, na.rm = TRUE), 1), " [",
+            round(quantile(Value, 0.25, na.rm = TRUE), 1), "-",
+            round(quantile(Value, 0.75, na.rm = TRUE), 1), "]"
+          ),
           p_value = ifelse(
             length(unique(Value[any_VTE_index_RA == "Y"])) > 1 &
               length(unique(Value[any_VTE_index_RA == "N"])) > 1,
@@ -422,20 +438,25 @@
             Variable = "Readmission within 30 days",
             No_VTE = paste0(Y_count_N, " (", round(Y_count_N / N_total_N * 100, 1), "%)"),
             VTE = paste0(Y_count_Y, " (", round(Y_count_Y / N_total_Y * 100, 1), "%)"),
+            Total = paste0(
+              Y_count_N + Y_count_Y, " (",
+              round((Y_count_N + Y_count_Y) / (N_total_N + N_total_Y) * 100, 1), "%)"
+            ),
             p_value = fisher.test(matrix(
               c(Y_count_Y, Y_count_N, N_total_Y - Y_count_Y, N_total_N - Y_count_N),
               nrow = 2
             ))$p.value
           ) %>%
-          select(Variable, No_VTE, VTE, p_value)
+          select(Variable, No_VTE, VTE, Total, p_value)
     #- Combine numeric and categorical results
       summary_table_clin_features_VTE <- bind_rows(summary_numeric, summary_categorical) %>%
           mutate(Variable = factor(Variable, levels = c("age", "BMI","SBP", "DBP", "HR", "ISS", "AIS_abdomen", "AIS_thorax", "AIS_spine", "hospital_days", "ICU_days", "vent_days", "Readmission within 30 days"))) %>%
-          select(Variable, No_VTE, VTE, p_value) %>%
+          select(Variable, No_VTE, VTE, Total, p_value) %>%
           arrange(Variable) %>%
           rename(
             !!paste0("VTE (n = ", sum(VTE_clinical_features_i$any_VTE_index_RA == "Y", na.rm = TRUE), ")") := VTE,
-            !!paste0("No VTE (n = ", sum(VTE_clinical_features_i$any_VTE_index_RA == "N", na.rm = TRUE), ")") := No_VTE
+            !!paste0("No VTE (n = ", sum(VTE_clinical_features_i$any_VTE_index_RA == "N", na.rm = TRUE), ")") := No_VTE,
+            !!paste0("Total (n = ", nrow(VTE_clinical_features_i), ")") := Total
           )
     #- Output table to word
       print(
