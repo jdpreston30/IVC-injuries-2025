@@ -18,11 +18,6 @@
     library(stats)
     library(purrr)
     library(broom)
-  #+ Write export function
-    output_dir <- "Outputs/"
-    write_out_csv <- function(data, filename) {
-      write_csv(data, paste0(output_dir, filename))
-    }
   #+ Set raw data path
     raw_path <- "/Users/jdp2019/Library/CloudStorage/OneDrive-Emory/Research/Manuscripts and Projects/Grady/IVC/raw_data/IVC_JDP.xlsx"
 #* Import Data
@@ -55,8 +50,18 @@
         ) %>%
         select(IVC_injury_split, Count_Percentage) %>%
         arrange(IVC_injury_split)
-      write_out_csv(fig1_percentages, "fig1_percentages.csv")
-#* Table 1: Survival and mechanism by injury type
+      output_csv(fig1_percentages, "fig1_percentages.csv")
+#* Table 1: Demographics
+  final_descriptive <- final %>%
+    mutate(
+      hospital_days = if_else(DC_timing %in% c("died after 72h during readmission", "Alive"), hospital_days, NA_real_),
+      ICU_days = if_else(DC_timing %in% c("died after 72h during readmission", "Alive"), ICU_days, NA_real_),
+      vent_days = if_else(DC_timing %in% c("died after 72h during readmission", "Alive"), vent_days, NA_real_),
+      readmission_wi_30d = if_else(DC_timing %in% c("died after 72h during readmission", "Alive"), readmission_wi_30d, NA_character_)
+    ) %>%
+    select(age,sex, BMI, SBP, DBP, HR, ISS, AIS_abdomen, AIS_thorax, AIS_spine, hospital_days, ICU_days, vent_days, readmission_wi_30d)
+  descriptive <- ternD(data = final_descriptive, output_docx = "Outputs/table1.docx")
+#* Table 2: Survival and mechanism by injury type
   #+ Prep Data
     #- Select variables of interest
       descriptive_i <- final %>%
@@ -97,7 +102,7 @@
         ) %>%
         select(-c(IVC_injury_split, IVC_injury_loc_simpl, DC_timing)) %>%
         arrange(ID)
-      write_out_csv(injury_counts, "injury_counts.csv")
+      output_csv(injury_counts, "injury_counts.csv")
   #+ Generate Table
     #- Create Table Labels
       label(injury_counts$Mechanism) <- "Mechanism"
@@ -113,26 +118,26 @@
         }))
       }
     #- Generate the table using table1
-      table1_output <- table1(
+      table2_output <- table1(
         ~ Mechanism + Mortality | IVC_injury_group,
         data = injury_counts,
         overall = "Total",
         render.categorical = my.render.cat
       )
-      table1_df <- as.data.frame(table1_output)
+      table2_df <- as.data.frame(table2_output)
     #- Prep Microsoft Word Table
-      group_totals_table1 <- injury_counts %>%
+      group_totals_table2 <- injury_counts %>%
         group_by(IVC_injury_group) %>%
         summarise(total = n())
-      header_labels_table1 <- c(
+      header_labels_table2 <- c(
         "", # Row labels column
-        paste0(group_totals_table1$IVC_injury_group, "\nn = ", group_totals_table1$total), # Dynamic group labels
-        paste0("Total\nn = ", sum(group_totals_table1$total)))
+        paste0(group_totals_table2$IVC_injury_group, "\nn = ", group_totals_table2$total), # Dynamic group labels
+        paste0("Total\nn = ", sum(group_totals_table2$total)))
     #- Prep Microsoft Word Table with flextable
       print(
         read_docx() %>%
           body_add_flextable(
-            flextable(table1_df[-1, ]) %>% # Remove the first row
+            flextable(table2_df[-1, ]) %>% # Remove the first row
               set_table_properties(width = 1, layout = "autofit") %>%
               fontsize(size = 10, part = "all") %>%
               bold(part = "header") %>%
@@ -142,18 +147,18 @@
               bg(j = "Total", bg = "transparent") %>% # Remove shading from the far-right column
               bold(j = "Total", part = "all") %>%
               align(align = "left", j = 1, part = "all") %>%
-              align(align = "center", j = 2:ncol(table1_df), part = "all") %>% # Adjust column indices
-              set_header_labels(values = header_labels_table1) %>% # Dynamically generated header labels
-              colformat_double(j = 2:ncol(table1_df), digits = 0) %>% # Adjust column indices
+              align(align = "center", j = 2:ncol(table2_df), part = "all") %>% # Adjust column indices
+              set_header_labels(values = header_labels_table2) %>% # Dynamically generated header labels
+              colformat_double(j = 2:ncol(table2_df), digits = 0) %>% # Adjust column indices
               height(height = 0.5, part = "header") %>%
               height(height = 0.2, part = "body") %>%
               border_remove() %>%
               hline(border = fp_border(color = "black", width = 1.5), part = "header") %>% # Add border below header row
               hline_top(border = fp_border(color = "black", width = 1.5), part = "header") %>% # Add border above header row
               hline_bottom(border = fp_border(color = "black", width = 1, style = "double"), part = "body") %>% # Double line below bottom row
-              bold(i = which(table1_df[-1, 1] %in% c("Mechanism", "Mortality")), part = "body")
+              bold(i = which(table2_df[-1, 1] %in% c("Mechanism", "Mortality")), part = "body")
           ),
-        target = file.path("Outputs", "table1.docx")
+        target = file.path("Outputs", "table2.docx")
       )
 #* Figure 3: Survival x Location x Repair
   #+ Take tibble prepped to make table 1 and rework to make stacked bars
@@ -184,9 +189,9 @@
       ungroup() %>%
       select(IVC_repair_type, IVC_injury_group, Survived, Died, Mortality_Percent) %>%
       arrange(IVC_injury_group, IVC_repair_type)
-    write_out_csv(stacked_bar_data, "stacked_bar_data.csv")
+    output_csv(stacked_bar_data, "stacked_bar_data.csv")
   #! At this point, arranged data in excel and graphed in Prism
-#* Table 2: VTE Table
+#* Table 3: VTE Table
   #+ Preprocess all data
     VTE_days <- read_excel(raw_path, sheet = "Final") %>%
       filter(IVC_repair_type != "Ligation", analyze == "Y") %>%
@@ -298,25 +303,25 @@
               IVCT = first_IVCT,
               PE = first_PE,
               Any_VTE = first_VTE)
-    table2 <- bind_rows(summary_table_counts, timing_table_bind)
-    write_out_csv(table2, "table2.csv")
+    table3 <- bind_rows(summary_table_counts, timing_table_bind)
+    output_csv(table3, "table3.csv")
   #! Manually copied this into word at this point
-#* Table 3: Clinical characteristics with and without VTE
+#* Table 4: Clinical characteristics with and without VTE
   #+ Pull Numeric Data
     VTE_clinical_features_i <- read_excel(raw_path, sheet = "Final") %>%
       filter(IVC_repair_type != "Ligation", analyze == "Y") %>%
       # filter(DC_timing!="died after 72h during admission") %>%
       # including the 72h patients in this analysis so commented out
-      select(any_VTE_index_RA, age, BMI, SBP, DBP, HR, ISS,AIS_abdomen,AIS_thorax,AIS_spine, hospital_days, ICU_days, vent_days,readmission_wi_30d,first_VTE_day) %>%
+      select(any_VTE_index_RA, age, sex, BMI, SBP, DBP, HR, ISS,AIS_abdomen,AIS_thorax,AIS_spine, time_to_ppx, hospital_days, ICU_days, vent_days,readmission_wi_30d,first_VTE_day) %>%
       mutate(any_VTE_index_RA = as.factor(any_VTE_index_RA)) %>%
       mutate(readmission_wi_30d = as.factor(readmission_wi_30d)) %>%
       arrange(desc(any_VTE_index_RA))
   #+ Manually specify variables for mean ± SD and t-test vs. median [IQR] and Wilcoxon test vs, dichotomous categorical Fisher's
-    mean_sd_vars <- c("age", "BMI", "SBP", "DBP", "HR")
+    mean_sd_vars <- c("age", "BMI", "SBP", "DBP", "HR", "time_to_ppx")
     median_iqr_vars <- c(
       "ISS", "AIS_thorax", "AIS_spine",
       "AIS_abdomen", "hospital_days", "ICU_days","vent_days")
-    dichotomous_cat <- "readmission_wi_30d"
+    dichotomous_cat <- c("sex", "readmission_wi_30d")
   #+ Create Summary Table
     #- Process numeric variables separately (variables that include those dying in addmission)
       summary_numeric_full <- VTE_clinical_features_i %>%
@@ -415,39 +420,44 @@
     #- Now combine them
       summary_numeric <- bind_rows(summary_numeric_full, summary_numeric_survivors) %>%
         unique()
-    #- Process categorical variable separately
-      #_Quick check of if we should run Fisher's versus Chi-squared test
-        tab <- table(VTE_clinical_features_i$readmission_wi_30d, VTE_clinical_features_i$any_VTE_index_RA)
-        expected <- chisq.test(tab)$expected
-        if (any(expected < 5)) {
-          message("Use Fisher's exact test")
-        } else {
-          message("Use Chi-square test")
-        }
-      #_ Run with Fisher's  
-        summary_categorical <- VTE_clinical_features_i %>%
-          filter(!is.na(readmission_wi_30d)) %>% # Exclude ineligible patients
-          group_by(any_VTE_index_RA) %>%
-          summarise(
-            Y_count = sum(readmission_wi_30d == "Y"),
-            N_total = n(),
-            .groups = "drop"
-          ) %>%
-          pivot_wider(names_from = any_VTE_index_RA, values_from = c(Y_count, N_total)) %>%
-          mutate(
-            Variable = "Readmission within 30 days",
-            No_VTE = paste0(Y_count_N, " (", round(Y_count_N / N_total_N * 100, 1), "%)"),
-            VTE = paste0(Y_count_Y, " (", round(Y_count_Y / N_total_Y * 100, 1), "%)"),
+    #- Run categoricals dynamically with fishers or chi squared separately
+
+        summary_categorical <- purrr::map_dfr(dichotomous_cat, function(var) {
+          # Get table
+          tab <- table(VTE_clinical_features_i[[var]], VTE_clinical_features_i$any_VTE_index_RA)
+          # Determine which test to use
+          test <- tryCatch({
+            expected <- suppressWarnings(chisq.test(tab)$expected)
+            if (any(expected < 5)) "fisher" else "chisq"
+          }, error = function(e) "fisher")
+          # Run test
+          p_val <- if (test == "fisher") {
+            fisher.test(tab)$p.value
+          } else {
+            chisq.test(tab)$p.value
+          }
+          # Compute n (%) for each group
+          df <- VTE_clinical_features_i %>%
+            filter(!is.na(.data[[var]])) %>%
+            group_by(any_VTE_index_RA) %>%
+            summarise(
+              Y_count = sum(.data[[var]] == "Y", na.rm = TRUE),
+              N_total = n(),
+              .groups = "drop"
+            ) %>%
+            pivot_wider(names_from = any_VTE_index_RA, values_from = c(Y_count, N_total))
+          tibble(
+            Variable = var,
+            No_VTE = paste0(df$Y_count_N, " (", round(df$Y_count_N / df$N_total_N * 100, 1), "%)"),
+            VTE = paste0(df$Y_count_Y, " (", round(df$Y_count_Y / df$N_total_Y * 100, 1), "%)"),
             Total = paste0(
-              Y_count_N + Y_count_Y, " (",
-              round((Y_count_N + Y_count_Y) / (N_total_N + N_total_Y) * 100, 1), "%)"
+              df$Y_count_N + df$Y_count_Y, " (",
+              round((df$Y_count_N + df$Y_count_Y) / (df$N_total_N + df$N_total_Y) * 100, 1), "%)"
             ),
-            p_value = fisher.test(matrix(
-              c(Y_count_Y, Y_count_N, N_total_Y - Y_count_Y, N_total_N - Y_count_N),
-              nrow = 2
-            ))$p.value
-          ) %>%
-          select(Variable, No_VTE, VTE, Total, p_value)
+            p_value = p_val
+          )
+        })
+        table(VTE_clinical_features_i$readmission_wi_30d, VTE_clinical_features_i$any_VTE_index_RA)
     #- Combine numeric and categorical results
       summary_table_clin_features_VTE <- bind_rows(summary_numeric, summary_categorical) %>%
           mutate(Variable = factor(Variable, levels = c("age", "BMI","SBP", "DBP", "HR", "ISS", "AIS_abdomen", "AIS_thorax", "AIS_spine", "hospital_days", "ICU_days", "vent_days", "Readmission within 30 days"))) %>%
