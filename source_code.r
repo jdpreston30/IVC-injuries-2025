@@ -63,14 +63,41 @@
 #* Table 1: Demographics
   final_descriptive <- final %>%
     mutate(
-      readmission_wi_30d = if_else(DC_timing %in% c("died after 72h during readmission", "Alive"), readmission_wi_30d, NA_character_)
+      readmission_wi_30d = if_else(
+        DC_timing %in% c("died after 72h during readmission", "Alive"),
+        readmission_wi_30d,
+        NA_character_
+      ),
+      hospital_days_72h = if_else(
+        DC_timing %in% c("died after 72h during readmission", "Alive", "died after 72h during admission"),
+        hospital_days,
+        NA_real_
+      ),
+      ICU_days_72h = if_else(
+        DC_timing %in% c("died after 72h during readmission", "Alive", "died after 72h during admission"),
+        ICU_days,
+        NA_real_
+      ),
+      vent_days_72h = if_else(
+        DC_timing %in% c("died after 72h during readmission", "Alive", "died after 72h during admission"),
+        vent_days,
+        NA_real_
+      )
     ) %>%
-    select(age,sex, BMI, injury_type,IVC_repair_type, SBP, DBP, HR, ISS, AIS_abdomen, AIS_thorax, AIS_spine, time_to_ppx, hospital_days, ICU_days, vent_days, readmission_wi_30d) %>%
-    mutate(IVC_repair_type = if_else(
-      IVC_repair_type == "Other: Temporary Ligation and Allis clamps",
-      "Ligation",
-      IVC_repair_type
-    ))
+    select(
+      age, sex, BMI, injury_type, IVC_repair_type, SBP, DBP, HR, ISS,
+      AIS_abdomen, AIS_thorax, AIS_spine, time_to_ppx,
+      hospital_days,hospital_days_72h, ICU_days,ICU_days_72h, vent_days,
+      vent_days_72h,
+      readmission_wi_30d
+    ) %>%
+    mutate(
+      IVC_repair_type = if_else(
+        IVC_repair_type == "Other: Temporary Ligation and Allis clamps",
+        "Ligation",
+        IVC_repair_type
+      )
+    )
   descriptive <- ternD(data = final_descriptive, output_docx = "Outputs/table1.docx")
 #* Table 2: Survival and mechanism by injury type
   #+ Prep Data
@@ -113,7 +140,6 @@
         ) %>%
         select(-c(DC_timing)) %>%
         arrange(ID)
-      output_csv(injury_counts, "injury_counts.csv")
   #+ Generate Table
     #- Create Table Labels
       label(injury_counts$Mechanism) <- "Mechanism"
@@ -171,40 +197,9 @@
           ),
         target = file.path("Outputs", "table2.docx")
       )
-#* Figure 3: Survival x Location x Repair
-  #+ Take tibble prepped to make table 1 and rework to make stacked bars
-    stacked_bar_data <- injury_counts %>%
-      mutate(
-        IVC_repair_type = case_when(
-          IVC_repair_type == "Other: Temporary Ligation and Allis clamps" ~ "Ligation",
-          TRUE ~ IVC_repair_type
-        )
-      ) %>%
-      mutate(
-        Mortality_bin = ifelse(Mortality == "Survived", "Survived", "Died") # Reclassify mortality
-      ) %>%
-      group_by(IVC_repair_type, IVC_injury_group, Mortality_bin) %>%
-      summarise(Count = n(), .groups = "drop") %>%
-      pivot_wider(
-        names_from = Mortality_bin,
-        values_from = Count,
-        values_fill = list(Count = 0) # Fill missing values with 0
-      ) %>%
-      mutate(Total = Died + Survived) %>%
-      group_by(IVC_injury_group) %>%
-      mutate(
-        Total_Died_in_Group = sum(Died),
-        Total_Cases_in_Group = sum(Total),
-        Mortality_Percent = (Total_Died_in_Group / Total_Cases_in_Group)*100
-      ) %>%
-      ungroup() %>%
-      select(IVC_repair_type, IVC_injury_group, Survived, Died, Mortality_Percent) %>%
-      arrange(IVC_injury_group, IVC_repair_type)
-    output_csv(stacked_bar_data, "stacked_bar_data.csv")
-  #! At this point, arranged data in excel and graphed in Prism
 #* Table 3: VTE Table
   #+ Preprocess all data
-    VTE_days <- read_excel(raw_path, sheet = "Final") %>%
+    VTE_days <- final %>%
       filter(IVC_repair_type != "Ligation", analyze == "Y") %>%
       # filter(DC_timing!="died after 72h during admission") %>%
       # including the 72h patients in this analysis so commented out
@@ -317,37 +312,20 @@
     table3 <- bind_rows(summary_table_counts, timing_table_bind)
     output_csv(table3, "table3.csv")
   #! Manually copied this into word at this point
-#* Suppl Table 1: Clinical characteristics with and without VTE
+#* Table 4: Clinical characteristics with and without index VTE
   #+ Pull Appropriate 
-    VTE_clinical_features_i <- read_excel(raw_path, sheet = "Final") %>%
+    VTE_clinical_features_i <- final %>%
       filter(IVC_repair_type != "Ligation", analyze == "Y") %>%
       # filter(DC_timing!="died after 72h during admission") %>%
       # including the 72h patients in this analysis so commented out
+      mutate(
+        readmission_wi_30d = if_else(DC_timing %in% c("died after 72h during readmission", "Alive"), readmission_wi_30d, NA_character_)
+      ) %>%
       select(any_VTE_index_RA,any_VTE_index, age, sex, BMI, injury_type, SBP, DBP, HR, ISS,AIS_abdomen,AIS_thorax,AIS_spine, time_to_ppx, hospital_days, ICU_days, vent_days,readmission_wi_30d) %>%
       mutate(any_VTE_index_RA = as.factor(any_VTE_index_RA)) %>%
       mutate(any_VTE_index = as.factor(any_VTE_index)) %>%
       mutate(readmission_wi_30d = as.factor(readmission_wi_30d)) %>%
-      arrange(desc(any_VTE_index_RA)) %>%
-      mutate(across(
-          c(hospital_days, ICU_days, vent_days),
-          ~ if_else(is.na(readmission_wi_30d), NA_real_, .)
-        ))
-  #+ Run TernTablesR to generate table
-    ST1 <- ternG(
-      data = VTE_clinical_features_i %>% select(-any_VTE_index),
-      group_var = "any_VTE_index_RA",
-      force_ordinal = c(
-        "ISS", "AIS_abdomen", "AIS_thorax", "AIS_spine",
-        "hospital_days", "ICU_days", "vent_days"
-      ),
-      descriptive = TRUE,
-      output_docx = "Outputs/ST1.docx",
-      OR_col = TRUE,
-      OR_method = "dynamic",
-      consider_normality = FALSE,
-      print_normality = FALSE
-    ) 
-#* Table 4: Clinical characteristics with and without index VTE
+      arrange(desc(any_VTE_index_RA))
   #+ Run TernTablesR to generate table
     T4 <- ternG(
       data = VTE_clinical_features_i %>% select(-any_VTE_index_RA),
@@ -363,10 +341,25 @@
       consider_normality = FALSE,
       print_normality = FALSE
     ) 
+  #+ (Not included) run on index + RA
+    ST1 <- TernTablesR::ternG(
+      data = VTE_clinical_features_i %>% select(-any_VTE_index),
+      group_var = "any_VTE_index_RA",
+      force_ordinal = c(
+        "ISS", "AIS_abdomen", "AIS_thorax", "AIS_spine",
+        "hospital_days", "ICU_days", "vent_days"
+      ),
+      descriptive = TRUE,
+      output_docx = "Outputs/ST1.docx",
+      OR_col = TRUE,
+      OR_method = "dynamic",
+      consider_normality = FALSE,
+      print_normality = FALSE
+    ) 
 #* Figure 4: VTE with Antithrombotic
   #+ Index pre-VTE Analysis
     #- Import Data and preprocess
-      VTE_therapy <- read_excel(raw_path, sheet = "Final") %>%
+      VTE_therapy <- final %>%
       filter(IVC_repair_type != "Ligation", analyze == "Y") %>%
       # filter(DC_timing!="died after 72h during admission") %>%
       # including the 72h patients in this analysis so commented outadmission") %>%
@@ -427,11 +420,36 @@
       none_row <- contingency_table_all["None", , drop = FALSE]
       contingency_table_extended <- rbind(contingency_table_dvs, None = none_row)
       row_pct_consol <- prop.table(contingency_table_extended, margin = 1) * 100
-      n_pct_df <- as.data.frame.matrix(
+      n_pct_df_consol <- as.data.frame.matrix(
         matrix(
           paste0(contingency_table_extended, " (", round(row_pct_consol, 1), "%)"),
           nrow = nrow(contingency_table_extended),
           dimnames = dimnames(contingency_table_extended)
         )
       )
+      fisher_result_dvsvn <- fisher.test(contingency_table_extended)
     #! Manually copied this into prism at this point
+#* Results data not shown
+  #+ Compute elapsed time discharge to first readmission VTE
+    elapsed_VTE <- final %>%
+      select(any_VTE_RA, RA_VTE_elapsed) %>%
+      filter(any_VTE_RA == "Y") %>%
+      summarise(
+        median_IQR = sprintf(
+          "%.0f [%.0f–%.0f]",
+          median(RA_VTE_elapsed, na.rm = TRUE),
+          quantile(RA_VTE_elapsed, 0.25, na.rm = TRUE),
+          quantile(RA_VTE_elapsed, 0.75, na.rm = TRUE)
+        )
+      )
+  #+ Compute percentages of DC AC agents groups
+    DC_AC_groupings <- final %>%
+      filter(IVC_repair_type != "Ligation", analyze == "Y") %>%
+      filter(DC_timing %in% c("died after 72h during readmission", "Alive")) %>%
+      select(DC_AC_group) %>%
+      count(DC_AC_group) %>%
+        mutate(
+          pct = round(n / sum(n) * 100, 1),
+          n_pct = paste0(n, " (", pct, "%)")
+        ) %>%
+      select(DC_AC_group, n_pct)
