@@ -1,4 +1,4 @@
-#* Setup
+#* Dependencies
   #+ Install all dependencies
     install.packages(c(
       "dplyr", "tidyr", "stringr", "readxl", "labelled", "ggplot2",
@@ -18,10 +18,15 @@
     library(stats)
     library(purrr)
     library(broom)
+    library(TernTablesR)
+#* Import Data
   #+ Set raw data path
     raw_path <- "/Users/jdp2019/Library/CloudStorage/OneDrive-Emory/Research/Manuscripts and Projects/Grady/IVC/raw_data/IVC_JDP.xlsx"
-#* Import Data
-  final <- read_excel(raw_path, sheet = "Final")
+  #+ Import raw data
+    final <- read_excel(raw_path, sheet = "Final")
+  #+ Load old objects
+    all_objects <- readRDS("/Users/jdp2019/Library/CloudStorage/OneDrive-Emory/Research/Manuscripts and Projects/Grady/IVC/raw_data/all_objects.rds")
+    list2env(all_objects, envir = .GlobalEnv)
 #* Figure 1: Flowchart
   #! Did this entirely in excel
 #* Figure 2: Heatmap
@@ -59,7 +64,12 @@
       vent_days = if_else(DC_timing %in% c("died after 72h during readmission", "Alive"), vent_days, NA_real_),
       readmission_wi_30d = if_else(DC_timing %in% c("died after 72h during readmission", "Alive"), readmission_wi_30d, NA_character_)
     ) %>%
-    select(age,sex, BMI, SBP, DBP, HR, ISS, AIS_abdomen, AIS_thorax, AIS_spine, hospital_days, ICU_days, vent_days, readmission_wi_30d)
+    select(age,sex, BMI, injury_type,IVC_repair_type, SBP, DBP, HR, ISS, AIS_abdomen, AIS_thorax, AIS_spine, time_to_ppx, hospital_days, ICU_days, vent_days, readmission_wi_30d) %>%
+    mutate(IVC_repair_type = if_else(
+      IVC_repair_type == "Other: Temporary Ligation and Allis clamps",
+      "Ligation",
+      IVC_repair_type
+    ))
   descriptive <- ternD(data = final_descriptive, output_docx = "Outputs/table1.docx")
 #* Table 2: Survival and mechanism by injury type
   #+ Prep Data
@@ -70,37 +80,37 @@
       injury_counts <- descriptive_i %>%
         filter(!is.na(IVC_injury_loc_simpl)) %>%
         mutate(
-          IVC_injury_split = IVC_injury_loc_simpl %>%
-            str_trim() %>% # Remove leading/trailing whitespace
-            str_to_title() %>% # Convert to title case
-            str_replace_all("\\s+", " ") # Collapse multiple spaces
-        ) %>%
-        separate_rows(IVC_injury_split, sep = ",\\s*") %>%
-        rename(Mechanism = injury_type) %>%
-        mutate(
+          IVC_injury_loc_simpl = str_trim(IVC_injury_loc_simpl) %>%
+            str_to_title() %>%
+            str_replace_all("\\s+", " "),
+          IVC_injury_loc_simpl = case_when(
+            IVC_injury_loc_simpl == "Suprarenal, Suprahepatic" ~ "Suprahepatic",
+            IVC_injury_loc_simpl == "Suprarenal, Retrohepatic" ~ "Retrohepatic",
+            IVC_injury_loc_simpl == "Juxtarenal, Juxtaportal" ~ "Juxtarenal",
+            TRUE ~ IVC_injury_loc_simpl
+          ),
           IVC_injury_group = case_when(
-            IVC_injury_split == "Suprahepatic" ~ "Suprahepatic", # Keep as is
-            IVC_injury_split == "Retrohepatic" ~ "Retrohepatic", # Keep as is
-            IVC_injury_split %in% c("Suprarenal", "Juxtarenal", "Juxtaportal") ~ "Juxtarenal", # Combine these
-            IVC_injury_split == "Infrarenal" ~ "Infrarenal" # Keep as is
+            IVC_injury_loc_simpl == "Suprahepatic" ~ "Suprahepatic",
+            IVC_injury_loc_simpl == "Retrohepatic" ~ "Retrohepatic",
+            IVC_injury_loc_simpl %in% c("Suprarenal", "Juxtarenal", "Juxtaportal") ~ "Juxtarenal",
+            IVC_injury_loc_simpl == "Infrarenal" ~ "Infrarenal",
+            TRUE ~ NA_character_
           ),
           IVC_injury_group = factor(
             IVC_injury_group,
             levels = c("Suprahepatic", "Retrohepatic", "Juxtarenal", "Infrarenal")
           ),
-          # Create the Mortality variable with specified categories
           Mortality = case_when(
             DC_timing == "died in first 24h" ~ "< 24h",
-            DC_timing == "died in first 48h" ~ "24h - 72h",
-            DC_timing == "died in first 72h" ~ "24h - 72h",
+            DC_timing %in% c("died in first 48h", "died in first 72h") ~ "24h - 72h",
             DC_timing == "died after 72h during admission" ~ "> 72h",
-            DC_timing == "died after 72h during readmission" ~ "> 72h",
-            DC_timing == "Alive" ~ "Survived" 
+            DC_timing %in% c("died after 72h during readmission", "Alive") ~ "Survived",
+            TRUE ~ NA_character_
           ),
           Mortality = factor(Mortality, levels = c("< 24h", "24h - 72h", "> 72h", "Survived")),
-          Mechanism = factor(Mechanism, levels = c("Blunt", "Penetrating"))
+          Mechanism = factor(injury_type, levels = c("Blunt", "Penetrating"))
         ) %>%
-        select(-c(IVC_injury_split, IVC_injury_loc_simpl, DC_timing)) %>%
+        select(-c(DC_timing)) %>%
         arrange(ID)
       output_csv(injury_counts, "injury_counts.csv")
   #+ Generate Table
@@ -306,192 +316,52 @@
     table3 <- bind_rows(summary_table_counts, timing_table_bind)
     output_csv(table3, "table3.csv")
   #! Manually copied this into word at this point
-#* Table 4: Clinical characteristics with and without VTE
-  #+ Pull Numeric Data
+#* Suppl Table 1: Clinical characteristics with and without VTE
+  #+ Pull Appropriate 
     VTE_clinical_features_i <- read_excel(raw_path, sheet = "Final") %>%
       filter(IVC_repair_type != "Ligation", analyze == "Y") %>%
       # filter(DC_timing!="died after 72h during admission") %>%
       # including the 72h patients in this analysis so commented out
-      select(any_VTE_index_RA, age, sex, BMI, SBP, DBP, HR, ISS,AIS_abdomen,AIS_thorax,AIS_spine, time_to_ppx, hospital_days, ICU_days, vent_days,readmission_wi_30d,first_VTE_day) %>%
+      select(any_VTE_index_RA,any_VTE_index, age, sex, BMI, injury_type, SBP, DBP, HR, ISS,AIS_abdomen,AIS_thorax,AIS_spine, time_to_ppx, hospital_days, ICU_days, vent_days,readmission_wi_30d) %>%
       mutate(any_VTE_index_RA = as.factor(any_VTE_index_RA)) %>%
+      mutate(any_VTE_index = as.factor(any_VTE_index)) %>%
       mutate(readmission_wi_30d = as.factor(readmission_wi_30d)) %>%
-      arrange(desc(any_VTE_index_RA))
-  #+ Manually specify variables for mean ± SD and t-test vs. median [IQR] and Wilcoxon test vs, dichotomous categorical Fisher's
-    mean_sd_vars <- c("age", "BMI", "SBP", "DBP", "HR", "time_to_ppx")
-    median_iqr_vars <- c(
-      "ISS", "AIS_thorax", "AIS_spine",
-      "AIS_abdomen", "hospital_days", "ICU_days","vent_days")
-    dichotomous_cat <- c("sex", "readmission_wi_30d")
-  #+ Create Summary Table
-    #- Process numeric variables separately (variables that include those dying in addmission)
-      summary_numeric_full <- VTE_clinical_features_i %>%
-        mutate(across(all_of(dichotomous_cat), as.character)) %>%
-        select(any_VTE_index_RA, all_of(c(mean_sd_vars, median_iqr_vars))) %>%
-        pivot_longer(
-          cols = -any_VTE_index_RA,
-          names_to = "Variable",
-          values_to = "Value"
-        ) %>%
-        filter(!Variable %in% c("hospital_days", "ICU_days", "vent_days")) %>%
-        group_by(Variable) %>%
-        reframe(
-          VTE = case_when(
-            Variable %in% mean_sd_vars ~ paste0(
-              round(mean(Value[any_VTE_index_RA == "Y"], na.rm = TRUE), 1), " ± ",
-              round(sd(Value[any_VTE_index_RA == "Y"], na.rm = TRUE), 1)
-            ),
-            Variable %in% median_iqr_vars ~ paste0(
-              round(median(Value[any_VTE_index_RA == "Y"], na.rm = TRUE), 1), " [",
-              round(quantile(Value[any_VTE_index_RA == "Y"], 0.25, na.rm = TRUE), 1), "-",
-              round(quantile(Value[any_VTE_index_RA == "Y"], 0.75, na.rm = TRUE), 1), "]"
-            )
-          ),
-          No_VTE = case_when(
-            Variable %in% mean_sd_vars ~ paste0(
-              round(mean(Value[any_VTE_index_RA == "N"], na.rm = TRUE), 1), " ± ",
-              round(sd(Value[any_VTE_index_RA == "N"], na.rm = TRUE), 1)
-            ),
-            Variable %in% median_iqr_vars ~ paste0(
-              round(median(Value[any_VTE_index_RA == "N"], na.rm = TRUE), 1), " [",
-              round(quantile(Value[any_VTE_index_RA == "N"], 0.25, na.rm = TRUE), 1), "-",
-              round(quantile(Value[any_VTE_index_RA == "N"], 0.75, na.rm = TRUE), 1), "]"
-            )
-          ),
-          Total = case_when(
-            Variable %in% mean_sd_vars ~ paste0(
-              round(mean(Value, na.rm = TRUE), 1), " ± ",
-              round(sd(Value, na.rm = TRUE), 1)
-            ),
-            Variable %in% median_iqr_vars ~ paste0(
-              round(median(Value, na.rm = TRUE), 1), " [",
-              round(quantile(Value, 0.25, na.rm = TRUE), 1), "-",
-              round(quantile(Value, 0.75, na.rm = TRUE), 1), "]"
-            )
-          ),
-          p_value = case_when(
-            Variable %in% mean_sd_vars ~ ifelse(
-              length(unique(Value[any_VTE_index_RA == "Y"])) > 1 &
-                length(unique(Value[any_VTE_index_RA == "N"])) > 1,
-              t.test(Value[any_VTE_index_RA == "Y"], Value[any_VTE_index_RA == "N"], var.equal = TRUE)$p.value,
-              NA_real_
-            ),
-            Variable %in% median_iqr_vars ~ ifelse(
-              length(unique(Value[any_VTE_index_RA == "Y"])) > 1 &
-                length(unique(Value[any_VTE_index_RA == "N"])) > 1,
-              wilcox.test(Value[any_VTE_index_RA == "Y"], Value[any_VTE_index_RA == "N"], exact = FALSE)$p.value,
-              NA_real_
-            )
-          )
-        ) %>%
-        unique()
-    #- Process numeric variables separately (variables that exclude patients that died in admission)
-      summary_numeric_survivors <- VTE_clinical_features_i %>%
-        filter(!is.na(readmission_wi_30d)) %>% # survivors only
-        select(any_VTE_index_RA, all_of(c("hospital_days", "ICU_days", "vent_days"))) %>%
-        pivot_longer(
-          cols = -any_VTE_index_RA,
-          names_to = "Variable",
-          values_to = "Value"
-        ) %>%
-        group_by(Variable) %>%
-        reframe(
-          VTE = paste0(
-            round(median(Value[any_VTE_index_RA == "Y"], na.rm = TRUE), 1), " [",
-            round(quantile(Value[any_VTE_index_RA == "Y"], 0.25, na.rm = TRUE), 1), "-",
-            round(quantile(Value[any_VTE_index_RA == "Y"], 0.75, na.rm = TRUE), 1), "]"
-          ),
-          No_VTE = paste0(
-            round(median(Value[any_VTE_index_RA == "N"], na.rm = TRUE), 1), " [",
-            round(quantile(Value[any_VTE_index_RA == "N"], 0.25, na.rm = TRUE), 1), "-",
-            round(quantile(Value[any_VTE_index_RA == "N"], 0.75, na.rm = TRUE), 1), "]"
-          ),
-          Total = paste0(
-            round(median(Value, na.rm = TRUE), 1), " [",
-            round(quantile(Value, 0.25, na.rm = TRUE), 1), "-",
-            round(quantile(Value, 0.75, na.rm = TRUE), 1), "]"
-          ),
-          p_value = ifelse(
-            length(unique(Value[any_VTE_index_RA == "Y"])) > 1 &
-              length(unique(Value[any_VTE_index_RA == "N"])) > 1,
-            wilcox.test(Value[any_VTE_index_RA == "Y"], Value[any_VTE_index_RA == "N"], exact = FALSE)$p.value,
-            NA_real_
-          )
-        )
-    #- Now combine them
-      summary_numeric <- bind_rows(summary_numeric_full, summary_numeric_survivors) %>%
-        unique()
-    #- Run categoricals dynamically with fishers or chi squared separately
-
-        summary_categorical <- purrr::map_dfr(dichotomous_cat, function(var) {
-          # Get table
-          tab <- table(VTE_clinical_features_i[[var]], VTE_clinical_features_i$any_VTE_index_RA)
-          # Determine which test to use
-          test <- tryCatch({
-            expected <- suppressWarnings(chisq.test(tab)$expected)
-            if (any(expected < 5)) "fisher" else "chisq"
-          }, error = function(e) "fisher")
-          # Run test
-          p_val <- if (test == "fisher") {
-            fisher.test(tab)$p.value
-          } else {
-            chisq.test(tab)$p.value
-          }
-          # Compute n (%) for each group
-          df <- VTE_clinical_features_i %>%
-            filter(!is.na(.data[[var]])) %>%
-            group_by(any_VTE_index_RA) %>%
-            summarise(
-              Y_count = sum(.data[[var]] == "Y", na.rm = TRUE),
-              N_total = n(),
-              .groups = "drop"
-            ) %>%
-            pivot_wider(names_from = any_VTE_index_RA, values_from = c(Y_count, N_total))
-          tibble(
-            Variable = var,
-            No_VTE = paste0(df$Y_count_N, " (", round(df$Y_count_N / df$N_total_N * 100, 1), "%)"),
-            VTE = paste0(df$Y_count_Y, " (", round(df$Y_count_Y / df$N_total_Y * 100, 1), "%)"),
-            Total = paste0(
-              df$Y_count_N + df$Y_count_Y, " (",
-              round((df$Y_count_N + df$Y_count_Y) / (df$N_total_N + df$N_total_Y) * 100, 1), "%)"
-            ),
-            p_value = p_val
-          )
-        })
-        table(VTE_clinical_features_i$readmission_wi_30d, VTE_clinical_features_i$any_VTE_index_RA)
-    #- Combine numeric and categorical results
-      summary_table_clin_features_VTE <- bind_rows(summary_numeric, summary_categorical) %>%
-          mutate(Variable = factor(Variable, levels = c("age", "BMI","SBP", "DBP", "HR", "ISS", "AIS_abdomen", "AIS_thorax", "AIS_spine", "hospital_days", "ICU_days", "vent_days", "Readmission within 30 days"))) %>%
-          select(Variable, No_VTE, VTE, Total, p_value) %>%
-          arrange(Variable) %>%
-          rename(
-            !!paste0("VTE (n = ", sum(VTE_clinical_features_i$any_VTE_index_RA == "Y", na.rm = TRUE), ")") := VTE,
-            !!paste0("No VTE (n = ", sum(VTE_clinical_features_i$any_VTE_index_RA == "N", na.rm = TRUE), ")") := No_VTE,
-            !!paste0("Total (n = ", nrow(VTE_clinical_features_i), ")") := Total
-          )
-    #- Output table to word
-      print(
-        read_docx() %>%
-          body_add_flextable(
-            flextable(summary_table_clin_features_VTE) %>%
-              set_table_properties(width = 1, layout = "autofit") %>%
-              fontsize(size = 10, part = "all") %>%
-              bold(part = "header") %>%
-              italic(part = "header") %>%
-              color(color = "black", part = "header") %>%
-              bg(part = "header", bg = "#d3d3d3") %>%
-              align(align = "left", j = 1, part = "all") %>%
-              align(align = "center", j = 2:ncol(summary_table_clin_features_VTE), part = "all") %>%
-              set_header_labels(values = c(Variable = "Variable",`No VTE` = "No VTE", VTE = "VTE", p_value = "P-value")) %>%
-              colformat_double(j = 4, digits = 3) %>%
-              height(height = 0.5, part = "header") %>%
-              height(height = 0.2, part = "body") %>%
-              border_remove() %>%
-              hline(border = fp_border(color = "black", width = 1.5), part = "header") %>%
-              hline_top(border = fp_border(color = "black", width = 1.5), part = "header") %>%
-              hline_bottom(border = fp_border(color = "black", width = 1, style = "double"), part = "body")
-          ),
-        target = file.path("Outputs", "table3.docx")
-      )
+      arrange(desc(any_VTE_index_RA)) %>%
+      mutate(across(
+          c(hospital_days, ICU_days, vent_days),
+          ~ if_else(is.na(readmission_wi_30d), NA_real_, .)
+        ))
+  #+ Run TernTablesR to generate table
+    ST1 <- ternG(
+      data = VTE_clinical_features_i %>% select(-any_VTE_index),
+      group_var = "any_VTE_index_RA",
+      force_ordinal = c(
+        "ISS", "AIS_abdomen", "AIS_thorax", "AIS_spine",
+        "hospital_days", "ICU_days", "vent_days"
+      ),
+      descriptive = TRUE,
+      output_docx = "Outputs/ST1.docx",
+      OR_col = TRUE,
+      OR_method = "dynamic",
+      consider_normality = FALSE,
+      print_normality = FALSE
+    ) 
+#* Table 4: Clinical characteristics with and without index VTE
+  #+ Run TernTablesR to generate table
+    T4 <- ternG(
+      data = VTE_clinical_features_i %>% select(-any_VTE_index_RA),
+      group_var = "any_VTE_index",
+      force_ordinal = c(
+        "ISS", "AIS_abdomen", "AIS_thorax", "AIS_spine",
+        "hospital_days", "ICU_days", "vent_days"
+      ),
+      descriptive = TRUE,
+      output_docx = "Outputs/Table4.docx",
+      OR_col = TRUE,
+      OR_method = "dynamic",
+      consider_normality = FALSE,
+      print_normality = FALSE
+    ) 
 #* Figure 4: VTE with Antithrombotic
   #+ Index pre-VTE Analysis
     #- Import Data and preprocess
@@ -501,7 +371,7 @@
       # including the 72h patients in this analysis so commented outadmission") %>%
         select(ID, AT_VTE)
     #- Testing
-      #_ASA (AP) and PPX Index
+      #_Preprocess
         AT_VTE_therapy <- VTE_therapy %>%
           separate(
             AT_VTE,
@@ -523,7 +393,44 @@
               ASA_Status == "+ASA" & PPX_Status == "-PPX" ~ "AP Only",
               ASA_Status == "+ASA" & PPX_Status == "+PPX" ~ "AP+PPX",
               ASA_Status == "-ASA" & PPX_Status == "+PPX" ~ "PPX Only"
-          )) 
-        contingency_table <- table(AT_VTE_therapy$PPX_ASA_status, AT_VTE_therapy$VTE_Status)
-        fisher_result <- fisher.test(contingency_table)
+          )) %>%
+          mutate(
+            Therapy_Group = case_when(
+              PPX_ASA_status %in% c("AP Only", "PPX Only") ~ "Single",
+              PPX_ASA_status == "AP+PPX" ~ "Dual",
+              TRUE ~ NA_character_  # will exclude "None" or malformed
+            )
+          )
+      #_All
+        contingency_table_all <- table(AT_VTE_therapy$PPX_ASA_status, AT_VTE_therapy$VTE_Status)
+        fisher_result_all <- fisher.test(contingency_table_all)
+      #_Nested (Dual vs Single)
+        contingency_table_dvs <- table(AT_VTE_therapy$Therapy_Group, AT_VTE_therapy$VTE_Status)
+        fisher_result_dvs <- fisher.test(contingency_table_dvs)
+        OR_dual_single <- sprintf(
+          "%.2f [%.2f–%.2f]",
+          fisher_result_dvs$estimate,
+          fisher_result_dvs$conf.int[1],
+          fisher_result_dvs$conf.int[2]
+        )
+    #- Compute percentages for all groups
+      row_totals <- rowSums(contingency_table_all)
+      row_pct <- prop.table(contingency_table_all, margin = 1) * 100
+      n_pct <- matrix(
+        paste0(contingency_table_all, " (", round(row_pct, 1), "%)"),
+        nrow = nrow(contingency_table_all),
+        dimnames = dimnames(contingency_table_all)
+      )
+      n_pct_df <- as.data.frame.matrix(n_pct)
+    #- Compute percentages for all consolidated dual v single v none
+      none_row <- contingency_table_all["None", , drop = FALSE]
+      contingency_table_extended <- rbind(contingency_table_dvs, None = none_row)
+      row_pct_consol <- prop.table(contingency_table_extended, margin = 1) * 100
+      n_pct_df <- as.data.frame.matrix(
+        matrix(
+          paste0(contingency_table_extended, " (", round(row_pct_consol, 1), "%)"),
+          nrow = nrow(contingency_table_extended),
+          dimnames = dimnames(contingency_table_extended)
+        )
+      )
     #! Manually copied this into prism at this point
