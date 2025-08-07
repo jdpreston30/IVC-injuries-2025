@@ -20,13 +20,17 @@
     library(broom)
     library(TernTablesR)
 #* Import Data
-  #+ Set raw data path
+  #+ Set path to raw data
     raw_path <- "/Users/jdp2019/Library/CloudStorage/OneDrive-Emory/Research/Manuscripts and Projects/Grady/IVC/raw_data/IVC_JDP.xlsx"
-  #+ Import raw data
+    raw_path_desktop <- "/Users/JoshsMacbook2015/Library/CloudStorage/OneDrive-EmoryUniversity/Research/Manuscripts and Projects/Grady/IVC/raw_data/IVC_JDP.xlsx"
+  #+ Laptop
     final <- read_excel(raw_path, sheet = "Final")
-  #+ Load old objects
     all_objects <- readRDS("/Users/jdp2019/Library/CloudStorage/OneDrive-Emory/Research/Manuscripts and Projects/Grady/IVC/raw_data/all_objects.rds")
     list2env(all_objects, envir = .GlobalEnv)
+  #+ Desktop
+    final <- read_excel(raw_path_desktop, sheet = "Final")
+    all_objects_desktop <- readRDS("/Users/JoshsMacbook2015/Library/CloudStorage/OneDrive-EmoryUniversity/Research/Manuscripts and Projects/Grady/IVC/raw_data/all_objects.rds")
+    list2env(all_objects_desktop, envir = .GlobalEnv)
 #* Figure 1: Flowchart
   #! Did this entirely in excel
 #* Figure 2: Heatmap
@@ -59,9 +63,6 @@
 #* Table 1: Demographics
   final_descriptive <- final %>%
     mutate(
-      hospital_days = if_else(DC_timing %in% c("died after 72h during readmission", "Alive"), hospital_days, NA_real_),
-      ICU_days = if_else(DC_timing %in% c("died after 72h during readmission", "Alive"), ICU_days, NA_real_),
-      vent_days = if_else(DC_timing %in% c("died after 72h during readmission", "Alive"), vent_days, NA_real_),
       readmission_wi_30d = if_else(DC_timing %in% c("died after 72h during readmission", "Alive"), readmission_wi_30d, NA_character_)
     ) %>%
     select(age,sex, BMI, injury_type,IVC_repair_type, SBP, DBP, HR, ISS, AIS_abdomen, AIS_thorax, AIS_spine, time_to_ppx, hospital_days, ICU_days, vent_days, readmission_wi_30d) %>%
