@@ -464,82 +464,62 @@
           n_pct = paste0(n, " (", pct, "%)")
         ) %>%
       select(DC_AC_group, n_pct)
-    ANY_PPX_grouping <- final %>%
-      filter(IVC_repair_type != "Ligation", analyze == "Y") %>%
-      filter(DC_timing %in% c("died after 72h during readmission", "Alive")) %>%
-      mutate(ppx_flag = if_else(DC_AC_group != "-AC,-ASA", "ANY_PPX", "NO_PPX")) %>%
-      count(ppx_flag) %>%
-      mutate(
-        pct   = round(n / sum(n) * 100, 1),
-        n_pct = paste0(n, " (", pct, "%)")
-      ) %>%
-      filter(ppx_flag == "ANY_PPX") %>%
-      select(DC_AC_group = ppx_flag, n_pct)
-#* ST1: Compute DC AC and readmission VTE stats
-  #+ Start from your filtered two-column table
-    base_contingency <- final %>%
-      filter(IVC_repair_type != "Ligation", analyze == "Y") %>%
-      filter(DC_timing %in% c("died after 72h during readmission", "Alive")) %>%
-      select(DC_AC_group, any_VTE_RA) %>%
-        count(DC_AC_group, any_VTE_RA, name = "n") %>%
-        tidyr::pivot_wider(
-          names_from  = any_VTE_RA,
-          values_from = n,
-          values_fill = 0
-        ) %>%
-        # Guarantee columns named exactly N and Y exist (even if one level is absent)
-        mutate(
-          N = dplyr::coalesce(.data[["N"]], 0L),
-          Y = dplyr::coalesce(.data[["Y"]], 0L)
-        ) %>%
-        select(DC_AC_group, N, Y)
-  #+ None / ASA / AC / AC+ASA
-    ASA_AC_combo <- base_contingency %>%
-      mutate(
-        ASA_AC_combo = case_when(
-          DC_AC_group == "-AC,-ASA" ~ "None",
-          DC_AC_group == "-AC,+ASA" ~ "+AP",
-          stringr::str_detect(DC_AC_group, "\\+PAC|\\+TAC") & !stringr::str_detect(DC_AC_group, "\\+ASA") ~ "+AC",
-          stringr::str_detect(DC_AC_group, "\\+PAC|\\+TAC") & stringr::str_detect(DC_AC_group, "\\+ASA") ~ "+AC, +AP",
-          TRUE ~ "Other"
-        )
-      ) %>%
-      group_by(ASA_AC_combo) %>%
-      summarise(across(c(N, Y), sum), .groups = "drop")
-  #+ ANY AC: AC_Y vs AC_N
-    ANY_AC <- base_contingency %>%
-      mutate(
-        AC_flag = if_else(stringr::str_detect(DC_AC_group, "\\+PAC|\\+TAC"), "+AC", "-AC")
-      ) %>%
-      group_by(AC_flag) %>%
-      summarise(across(c(N, Y), sum), .groups = "drop")
-  #+ Single / Dual / None (ASA = one strategy, AC = another)
-    Single_Dual_None <- base_contingency %>%
-      mutate(
-        strategy_count = case_when(
-          DC_AC_group == "-AC,-ASA" ~ 0L,
-          stringr::str_detect(DC_AC_group, "\\+PAC|\\+TAC") & stringr::str_detect(DC_AC_group, "\\+ASA") ~ 2L,
-          TRUE ~ 1L
-        ),
-        strategy_group = case_when(
-          strategy_count == 0L ~ "None",
-          strategy_count == 1L ~ "Single",
-          strategy_count == 2L ~ "Dual"
-        )
-      ) %>%
-      group_by(strategy_group) %>%
-      summarise(across(c(N, Y), sum), .groups = "drop")
-  #+ Run fishers on all
-    fisher.test(base_contingency %>% select(Y, N) %>% as.matrix())
-    fisher.test(ASA_AC_combo %>% select(Y, N) %>% as.matrix())
-    fisher.test(ANY_AC %>% select(Y, N) %>% as.matrix())
-    fisher.test(Single_Dual_None %>% select(Y, N) %>% as.matrix())
-  #+ Return all contingency tables
-    DC_ppx_RAVTEs <- list(
-      base_contingency = base_contingency,
-      ASA_AC_combo = ASA_AC_combo,
-      ANY_AC = ANY_AC,
-      Single_Dual_None = Single_Dual_None
-    )
-  #+ Export base contingency as CSV
-    output_csv(base_contingency, "ST1.csv")
+  #+ Compute DC AC and readmission VTE stats
+    #- Start from your filtered two-column table
+      base_contingency <- final %>%
+        filter(IVC_repair_type != "Ligation", analyze == "Y") %>%
+        filter(DC_timing %in% c("died after 72h during readmission", "Alive")) %>%
+        select(DC_AC_group, any_VTE_RA) %>%
+          count(DC_AC_group, any_VTE_RA, name = "n") %>%
+          tidyr::pivot_wider(
+            names_from  = any_VTE_RA,
+            values_from = n,
+            values_fill = 0
+          ) %>%
+          # Guarantee columns named exactly N and Y exist (even if one level is absent)
+          mutate(
+            N = dplyr::coalesce(.data[["N"]], 0L),
+            Y = dplyr::coalesce(.data[["Y"]], 0L)
+          ) %>%
+          select(DC_AC_group, N, Y)
+#- None / ASA / AC / AC+ASA
+  ASA_AC_combo <- base_contingency %>%
+    mutate(
+      ASA_AC_combo = case_when(
+        DC_AC_group == "-AC,-ASA" ~ "None",
+        DC_AC_group == "-AC,+ASA" ~ "+AP",
+        stringr::str_detect(DC_AC_group, "\\+PAC|\\+TAC") & !stringr::str_detect(DC_AC_group, "\\+ASA") ~ "+AC",
+        stringr::str_detect(DC_AC_group, "\\+PAC|\\+TAC") & stringr::str_detect(DC_AC_group, "\\+ASA") ~ "+AC, +AP",
+        TRUE ~ "Other"
+      )
+    ) %>%
+    group_by(ASA_AC_combo) %>%
+    summarise(across(c(N, Y), sum), .groups = "drop")
+#- ANY AC: AC_Y vs AC_N
+  ANY_AC <- base_contingency %>%
+    mutate(
+      AC_flag = if_else(stringr::str_detect(DC_AC_group, "\\+PAC|\\+TAC"), "+AC", "-AC")
+    ) %>%
+    group_by(AC_flag) %>%
+    summarise(across(c(N, Y), sum), .groups = "drop")
+#- Single / Dual / None (ASA = one strategy, AC = another)
+  Single_Dual_None <- base_contingency %>%
+    mutate(
+      strategy_count = case_when(
+        DC_AC_group == "-AC,-ASA" ~ 0L,
+        stringr::str_detect(DC_AC_group, "\\+PAC|\\+TAC") & stringr::str_detect(DC_AC_group, "\\+ASA") ~ 2L,
+        TRUE ~ 1L
+      ),
+      strategy_group = case_when(
+        strategy_count == 0L ~ "None",
+        strategy_count == 1L ~ "Single",
+        strategy_count == 2L ~ "Dual"
+      )
+    ) %>%
+    group_by(strategy_group) %>%
+    summarise(across(c(N, Y), sum), .groups = "drop")
+#- Run fishers on all
+fisher.test(base_contin)
+fisher.test(ASA_AC_combo)
+fisher.test(ANY_AC)
+fisher.test(Single_Dual_None)
