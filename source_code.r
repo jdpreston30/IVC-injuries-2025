@@ -430,6 +430,32 @@
       fisher_result_dvsvn <- fisher.test(contingency_table_extended)
     #! Manually copied this into prism at this point
 #* Results data not shown
+  #+ Compute mortality characteristics within 72h
+    #- Filter to variables of interest
+      survival_72 <- final %>%
+        filter(DC_timing %in% c("died in first 72h", "died in first 48h", "died in first 24h")) %>%
+        select(injury_type, DC_timing, MTP_MBP_registry, MTP_activation) %>%
+        arrange(MTP_activation) %>%
+        mutate(MTP_activation = if_else(is.na(MTP_activation), 0, MTP_activation)) %>% # assuming NA = no to be conservative
+        mutate(MTP_MBP_registry = if_else(is.na(MTP_MBP_registry), 0, MTP_MBP_registry)) %>%
+        mutate(
+          MTP_activation    = as.integer(MTP_activation %in% c(1, TRUE)),
+          MTP_MBP_registry  = as.integer(MTP_MBP_registry %in% c(1, TRUE)),
+          any_MTP           = as.integer(MTP_activation == 1 | MTP_MBP_registry == 1)
+        )
+    #- Summarize
+      injury_type_summary <- survival_72 %>%
+        count(injury_type, name = "n") %>%
+        mutate(pct = round(100 * n / sum(n), 1))
+      MTP_activation_summary <- survival_72 %>%
+        count(MTP_activation, name = "n") %>%
+        mutate(pct = round(100 * n / sum(n), 1))
+      MTP_MBP_registry_summary <- survival_72 %>%
+        count(MTP_MBP_registry, name = "n") %>%
+        mutate(pct = round(100 * n / sum(n), 1))
+      any_MTP_summary <- survival_72 %>%
+        count(any_MTP, name = "n") %>%
+        mutate(pct = round(100 * n / sum(n), 1))
   #+ Compute PE rate and PPX strategy in ligation patients
     ligation_PE_rate <- final %>%
       filter(IVC_repair_type == "Ligation", analyze == "Y") %>%
@@ -475,6 +501,7 @@
       ) %>%
       filter(ppx_flag == "ANY_PPX") %>%
       select(DC_AC_group = ppx_flag, n_pct)
+
 #* ST1: Compute DC AC and readmission VTE stats
   #+ Start from your filtered two-column table
     base_contingency <- final %>%
