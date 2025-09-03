@@ -5,7 +5,7 @@
 #'
 #' @return A tibble containing the imported sheet.
 #' @export
-import_excel <- function(raw_path = NULL, sheet = "Final") {
+dynamic_import <- function(raw_path = NULL, sheet = "Final") {
   # Defaults
   laptop_default <- "/Users/jdp2019/Library/CloudStorage/OneDrive-Emory/Research/Manuscripts and Projects/Grady/IVC/raw_data/IVC_JDP.xlsx"
   desktop_default <- "/Users/JoshsMacbook2015/Library/CloudStorage/OneDrive-EmoryUniversity/Research/Manuscripts and Projects/Grady/IVC/raw_data/IVC_JDP.xlsx"

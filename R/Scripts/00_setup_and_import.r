@@ -1,4 +1,14 @@
 #* 0: Setup
+#+ 0.0: Call all utility functions
+  purrr::walk(
+    list.files(
+      here::here("R", "Utilities"),
+      pattern = "\\.[rR]$",
+      full.names = TRUE,
+      recursive = TRUE
+    ),
+    source
+  )
 #+ 0.1: Install all dependencies if missing
   #- 0.1.1: CRAN packages vector
     packages <- c(
@@ -35,15 +45,5 @@
   library(epitools)
   library(openxlsx)
   library(TernTablesR)
-#+ 0.3: Call all utility functions
-  purrr::walk(
-    list.files(
-      here::here("R", "Utilities"),
-      pattern = "\\.[rR]$",
-      full.names = TRUE,
-      recursive = TRUE
-    ),
-    source
-  )
-#+ 0.4: Import data
+#+ 0.3: Import data
   final <- dynamic_import(raw_path)

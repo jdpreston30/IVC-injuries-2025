@@ -65,6 +65,30 @@
     Single_Dual_None = Single_Dual_None
   )
 #+ 7.7: Create a total column with n(%) in contingency table
-
+  #- 7.7.1: Set label map
+    label_map <- c(
+      "-AC,-ASA"   = "None",
+      "-AC,+ASA"   = "+AP",
+      "+PAC,-ASA"  = "+PAC",
+      "+TAC,-ASA"  = "+TAC",
+      "+PAC,+ASA"  = "+PAC, +AP",
+      "+TAC,+ASA"  = "+TAC, +AP"
+    )
+  #- 7.7.2: Desired order
+    desired_order <- c("None", "+AP", "+PAC", "+TAC", "+PAC, +AP", "+TAC, +AP")
+  #- 7.7.3: Create ST1 with total column
+    ST1 <- base_contingency %>%
+      mutate(
+        Label = recode(DC_AC_group, !!!label_map), # rename groups
+        Total = N + Y,
+        Total_col = sprintf(
+          "%d (%d%%)", 
+          Total, 
+          floor(100 * Total / sum(N + Y) + 0.5)  # round .5 UP
+        ),
+        Label = factor(Label, levels = desired_order) # enforce order
+      ) %>%
+        arrange(Label) %>%
+        select(Label, N, Y, Total_col)
 #+ 7.8: Export base contingency as CSV
-  output_csv(base_contingency, "ST1.csv")
+  output_csv(ST1, "ST1.csv")

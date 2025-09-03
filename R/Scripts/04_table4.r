@@ -18,12 +18,12 @@
     group_var = "any_VTE_index",
     force_ordinal = c(
       "ISS", "AIS_abdomen", "AIS_thorax", "AIS_spine",
-      "hospital_days", "ICU_days", "vent_days"
+      "hospital_days", "ICU_days", "vent_days", "SBP", "DBP", "HR"
     ),
     descriptive = TRUE,
     output_docx = "Outputs/Table4.docx",
     OR_col = TRUE,
     OR_method = "dynamic",
-    consider_normality = FALSE,
+    consider_normality = TRUE,
     print_normality = FALSE
   )
