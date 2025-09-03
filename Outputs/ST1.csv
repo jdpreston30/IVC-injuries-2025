@@ -1,7 +1,0 @@
-DC_AC_group,N,Y
-"+PAC,+ASA",4,0
-"+PAC,-ASA",6,0
-"+TAC,+ASA",1,0
-"+TAC,-ASA",11,1
-"-AC,+ASA",10,1
-"-AC,-ASA",25,3
