@@ -1,0 +1,35 @@
+Type: Project
+Title: IVC Injuries Analysis
+Authors@R: person("Joshua", "Preston", email = "joshua.preston@emory.edu", role = c("aut", "cre"), comment = c(ORCID = "0000-0001-9834-3017"))
+Description: Analysis pipeline for IVC injuries analysis associated with the manuscript by Himmler et al. 2025. 
+License: MIT + file LICENSE
+URL: https://github.com/jdpreston30/TDCPP-2025
+Depends: 
+    R (>= 4.5.1)
+Imports:
+    broom,
+    dplyr,
+    epitools,
+    flextable,
+    forcats,
+    ggplot2,
+    labelled,
+    officer,
+    openxlsx,
+    purrr,
+    readr,
+    readxl,
+    remotes,
+    stats,
+    stringr,
+    table1,
+    TernTablesR,
+    tibble,
+    tidyr
+Remotes:
+    jdpreston30/TernTablesR
+
+
+Config/renv/snapshot/type: explicit
+Encoding: UTF-8
+RoxygenNote: 7.3.3

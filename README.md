@@ -1,4 +1,26 @@
-# IVC Injuries Analysis
+# IVC Injuries A## Usage
+The analysis uses an automated pipeline that handles package installation and data processing:
+
+```r
+# Run the complete analysis pipeline
+source("all_run/run.R")
+```
+
+This will automatically:
+- Install any missing CRAN packages (from DESCRIPTION.txt)  
+- Install TernTablesR from GitHub (jdpreston30/TernTablesR)
+- Load all required packages
+- Import data using dynamic path detection
+- Execute all analysis scripts
+
+## Files
+All elements of the repository are listed below:
+- `all_run/run.R`: Main pipeline script that orchestrates the entire analysis
+- `R/Scripts/`: Individual analysis scripts (00a-07) for each component  
+- `R/Utilities/`: Helper functions for data import and processing
+- `DESCRIPTION.txt`: Package dependencies and project metadata
+- `Outputs/`: Generated data files and tables from the analysis
+- `Figures.prism`: GraphPad Prism file used to create manuscript figures
 This repository contains code and data used for the analysis presented in the submitted manuscript 'Venous Thromboembolism Burden in IVC Injuries: Is there an Optimal Strategy in Prevention?' by Himmler et al. 2025.
 
 To clone this repository to your local machine:
@@ -7,12 +29,12 @@ git clone https://github.com/jdpreston30/IVC-injuries-2025
 cd IVC-injuries-2025
 ```
 
-Make sure you have [Git](https://git-scm.com/) installed. After cloning, you can open `source_code.R` in RStudio or your preferred IDE to begin the analysis.
+Make sure you have [Git](https://git-scm.com/) installed. After cloning, you can run the analysis using the automated pipeline (see Usage section below).
 
 
 ## Requirements
 - R version ≥ 4.3.1
-- Packages: dplyr, tidyr, stringr, readxl, labelled, ggplot2,flextable, officer, tibble, forcats, stats, purrr, broom
+- All required packages will be automatically installed when running the analysis
 
 ## Files
 All elements of the repository are listed below, along with a description and guide of each:

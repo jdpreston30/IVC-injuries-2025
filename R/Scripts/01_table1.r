@@ -38,7 +38,12 @@
       )
     )
 #+ 1.2: Run TernTablesR for Descriptive Statistics
-  descriptive <- ternD(data = final_descriptive, output_docx = "Outputs/table1.docx", consider_normality = TRUE, print_normality = TRUE)
+  descriptive <- ternD(
+    data = final_descriptive,
+    output_docx = "Outputs/table1.docx",
+    consider_normality = TRUE,
+    print_normality = TRUE,
+    insert_subheads = TRUE)
 #+ 1.3: Run normality tests
   VTE_days_norm <- final_descriptive %>%
     summarise(across(

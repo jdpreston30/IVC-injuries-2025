@@ -1,0 +1,23 @@
+# Analysis Configuration - Dynamic Computer Detection
+# Project settings and data paths for reproducible analysis
+
+# Computer-specific path templates
+computers:
+  laptop:
+    user_home: "/Users/jdp2019"
+    onedrive_path: "Library/CloudStorage/OneDrive-Emory"
+  
+  desktop:
+    user_home: "/Users/JoshsMacbook2015" 
+    onedrive_path: "Library/CloudStorage/OneDrive-EmoryUniversity"
+# Dynamic path templates (will be populated based on computer selection)
+paths:
+  # IVC data paths - {user_home} and {onedrive_path} will be substituted
+  GCMS_data: "{user_home}/{onedrive_path}/Research/Manuscripts and Projects/Grady/IVC/raw_data/IVC_JDP.xlsx"
+
+  # Output paths (relative to project root)
+  output: "./Outputs"
+  
+  # Script and utility paths
+  scripts: "R/Scripts/"
+  utils: "R/Utilities/"
