@@ -11,3 +11,6 @@
   source("R/Scripts/06_data_not_shown.r")
   source("R/Scripts/07_sup_table1.r")
 }
+# remove.packages("TernTablesR")
+# remotes::install_github("jdpreston30/TernTablesR", force = TRUE)
+# library(TernTablesR)
