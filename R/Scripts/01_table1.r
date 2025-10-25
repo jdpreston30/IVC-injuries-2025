@@ -40,9 +40,14 @@
 #+ 1.2: Run TernTablesR for Descriptive Statistics
   descriptive <- ternD(
     data = final_descriptive,
+    force_ordinal = c(
+      "ISS", "AIS_abdomen", "AIS_thorax", "AIS_spine",
+      "hospital_days", "hospital_days_72h","ICU_days","ICU_days_72h", "vent_days", "vent_days_72h"
+    ),
     output_docx = "Outputs/table1.docx",
-    consider_normality = TRUE,
-    insert_subheads = TRUE)
+    consider_normality = FALSE,
+    insert_subheads = TRUE
+  )
 #+ 1.3: Run normality tests
   VTE_days_norm <- final_descriptive %>%
     summarise(across(
@@ -59,4 +64,5 @@
       W = map_dbl(shapiro_result, ~ .x$statistic),
       p_value = map_dbl(shapiro_result, ~ .x$p.value)
     ) %>%
-    select(variable, W, p_value)
+    select(variable, W, p_value) |>
+    arrange(p_value)

@@ -72,3 +72,19 @@
     ) %>%
     filter(ppx_flag == "ANY_PPX") %>%
     select(DC_AC_group = ppx_flag, n_pct)
+#+ 6.5: Compute breakdown of DVT_ppx_agent_and_dose fig1_percentages
+#- 6.5.1: Merge heparin info with AT_VTE therapy
+heparin_info <- final |>
+  filter(IVC_repair_type != "Ligation", analyze == "Y") |>
+  select(ID, heparin_type, heparin_dose, heparin_schedule) |>
+  left_join(AT_VTE_therapy, by = "ID") |>
+  mutate(
+    heparin_type = if_else(is.na(heparin_type), "None", heparin_type),
+    heparin_type = if_else(PPX_Status == "-PPX", "None", heparin_type)
+  )
+#- 6.6.3: +PPX patients heparin breakdown
+ppx_heparin_type <- heparin_info |>
+  filter(PPX_Status == "+PPX") |>
+  count(heparin_type) |>
+  mutate(pct = round(n/sum(n)*100, 1), n_pct = paste0(n, " (", pct, "%)")) |>
+  select(heparin_type, n_pct)

@@ -27,14 +27,23 @@
           IVC_injury_group,
           levels = c("Suprahepatic", "Retrohepatic", "Juxtarenal", "Infrarenal")
         ),
+        IVC_repair_type = case_when(
+          IVC_repair_type == "Other: Temporary Ligation and Allis clamps" ~ "Ligation‡",
+          IVC_repair_type == "Ligation" ~ "Ligation‡",
+          TRUE ~ IVC_repair_type
+        ),
+        IVC_repair_type = factor(
+          IVC_repair_type,
+          levels = c("Primary", "Ligation‡", "Patch", "Irreparable")
+        ),
         Mortality = case_when(
-          DC_timing == "died in first 24h" ~ "< 24h",
-          DC_timing %in% c("died in first 48h", "died in first 72h") ~ "24h - 72h",
-          DC_timing == "died after 72h during admission" ~ "> 72h",
-          DC_timing %in% c("died after 72h during readmission", "Alive") ~ "Survived",
+          DC_timing == "died in first 24h" ~ "  < 24h",
+          DC_timing %in% c("died in first 48h", "died in first 72h") ~ "  24h - 72h",
+          DC_timing == "died after 72h during admission" ~ "  > 72h",
+          DC_timing %in% c("died after 72h during readmission", "Alive") ~ "  Survived",
           TRUE ~ NA_character_
         ),
-        Mortality = factor(Mortality, levels = c("< 24h", "24h - 72h", "> 72h", "Survived")),
+        Mortality = factor(Mortality, levels = c("  < 24h", "  24h - 72h", "  > 72h", "  Survived")),
         Mechanism = factor(injury_type, levels = c("Blunt", "Penetrating"))
       ) %>%
       select(-c(DC_timing)) %>%
@@ -42,11 +51,12 @@
 #+ 2.2: Generate Table
   #- 2.2.1: Create Table Labels
     label(injury_counts$Mechanism) <- "Mechanism"
+    label(injury_counts$IVC_repair_type) <- "Repair Type"
     label(injury_counts$Mortality) <- "Mortality"
     label(injury_counts$IVC_injury_group) <- "IVC Injury Group"
   #- 2.2.2: Generate the table using table1
     table2_output <- table1(
-      ~ Mechanism + Mortality | IVC_injury_group,
+      ~ Mechanism + IVC_repair_type + Mortality | IVC_injury_group,
       data = injury_counts,
       overall = "Total",
       render.categorical = my_render_cat
@@ -83,7 +93,7 @@
             hline(border = fp_border(color = "black", width = 1.5), part = "header") %>% # Add border below header row
             hline_top(border = fp_border(color = "black", width = 1.5), part = "header") %>% # Add border above header row
             hline_bottom(border = fp_border(color = "black", width = 1, style = "double"), part = "body") %>% # Double line below bottom row
-            bold(i = which(table2_df[-1, 1] %in% c("Mechanism", "Mortality")), part = "body")
+            bold(i = which(table2_df[-1, 1] %in% c("Mechanism", "Repair Type", "Mortality")), part = "body")
         ),
       target = file.path("Outputs", "table2.docx")
     )

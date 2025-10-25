@@ -7,7 +7,7 @@
     mutate(
       readmission_wi_30d = if_else(DC_timing %in% c("died after 72h during readmission", "Alive"), readmission_wi_30d, NA_character_)
     ) %>%
-    select(any_VTE_index_RA, any_VTE_index, age, sex, BMI, injury_type, SBP, DBP, HR, ISS, AIS_abdomen, AIS_thorax, AIS_spine, time_to_ppx, hospital_days, ICU_days, vent_days, readmission_wi_30d) %>%
+    select(any_VTE_index_RA, any_VTE_index, age, sex, BMI, injury_type, SBP, DBP, HR, ISS, AIS_abdomen, AIS_thorax, AIS_spine, IVC_repair_type, time_to_ppx, hospital_days, ICU_days, vent_days, readmission_wi_30d) %>%
     mutate(any_VTE_index_RA = as.factor(any_VTE_index_RA)) %>%
     mutate(any_VTE_index = as.factor(any_VTE_index)) %>%
     mutate(readmission_wi_30d = as.factor(readmission_wi_30d)) %>%
@@ -18,12 +18,14 @@
     group_var = "any_VTE_index",
     force_ordinal = c(
       "ISS", "AIS_abdomen", "AIS_thorax", "AIS_spine",
-      "hospital_days", "ICU_days", "vent_days", "SBP", "DBP", "HR"
+      "hospital_days", "ICU_days", "vent_days"
     ),
     descriptive = TRUE,
     output_docx = "Outputs/Table4.docx",
-    OR_col = TRUE,
+    OR_col = FALSE,
     OR_method = "dynamic",
-    consider_normality = TRUE,
-    print_normality = FALSE
+    consider_normality = FALSE,
+    print_normality = FALSE,
+    show_test = FALSE,
+    p_digits = 2
   )
