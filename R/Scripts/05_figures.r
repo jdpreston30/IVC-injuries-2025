@@ -35,49 +35,49 @@ VTE_therapy <- final %>%
   # including the 72h patients in this analysis so commented outadmission") %>%
   select(ID, AT_VTE)
 #- 5.3.2: Testing
-#_ 5.4.2.1: Preprocess
-  AT_VTE_therapy <- VTE_therapy %>%
-    separate(
-      AT_VTE,
-      into = c("ASA_Status", "VTE_Status", "PPX_Status", "VTE_Status_2"),
-      sep = ",\\s*",
-      remove = FALSE
-    ) %>%
-    select(-c(VTE_Status_2, AT_VTE)) %>%
-    mutate(
-      AT_Status = case_when(
-        ASA_Status == "-ASA" ~ "None",
-        ASA_Status == "+ASA" ~ "AP",
-        TRUE ~ "Other" # Catch-all for any unexpected combinations
-      )
-    ) %>%
-    mutate(
-      PPX_ASA_status = case_when(
-        ASA_Status == "-ASA" & PPX_Status == "-PPX" ~ "None",
-        ASA_Status == "+ASA" & PPX_Status == "-PPX" ~ "AP Only",
-        ASA_Status == "+ASA" & PPX_Status == "+PPX" ~ "AP+PPX",
-        ASA_Status == "-ASA" & PPX_Status == "+PPX" ~ "PPX Only"
-      )
-    ) %>%
-    mutate(
-      Therapy_Group = case_when(
-        PPX_ASA_status %in% c("AP Only", "PPX Only") ~ "Single",
-        PPX_ASA_status == "AP+PPX" ~ "Dual",
-        TRUE ~ NA_character_ # will exclude "None" or malformed
-      )
+# Preprocess
+AT_VTE_therapy <- VTE_therapy %>%
+  separate(
+    AT_VTE,
+    into = c("ASA_Status", "VTE_Status", "PPX_Status", "VTE_Status_2"),
+    sep = ",\\s*",
+    remove = FALSE
+  ) %>%
+  select(-c(VTE_Status_2, AT_VTE)) %>%
+  mutate(
+    AT_Status = case_when(
+      ASA_Status == "-ASA" ~ "None",
+      ASA_Status == "+ASA" ~ "AP",
+      TRUE ~ "Other" # Catch-all for any unexpected combinations
     )
-#_ 5.4.2.2: All
-  contingency_table_all <- table(AT_VTE_therapy$PPX_ASA_status, AT_VTE_therapy$VTE_Status)
-  fisher_result_all <- fisher.test(contingency_table_all)
-#_ 5.4.2.3: Nested (Dual vs Single)
-  contingency_table_dvs <- table(AT_VTE_therapy$Therapy_Group, AT_VTE_therapy$VTE_Status)
-  fisher_result_dvs <- fisher.test(contingency_table_dvs)
-  OR_dual_single <- sprintf(
-    "%.2f [%.2f–%.2f]",
-    fisher_result_dvs$estimate,
-    fisher_result_dvs$conf.int[1],
-    fisher_result_dvs$conf.int[2]
+  ) %>%
+  mutate(
+    PPX_ASA_status = case_when(
+      ASA_Status == "-ASA" & PPX_Status == "-PPX" ~ "None",
+      ASA_Status == "+ASA" & PPX_Status == "-PPX" ~ "AP Only",
+      ASA_Status == "+ASA" & PPX_Status == "+PPX" ~ "AP+PPX",
+      ASA_Status == "-ASA" & PPX_Status == "+PPX" ~ "PPX Only"
+    )
+  ) %>%
+  mutate(
+    Therapy_Group = case_when(
+      PPX_ASA_status %in% c("AP Only", "PPX Only") ~ "Single",
+      PPX_ASA_status == "AP+PPX" ~ "Dual",
+      TRUE ~ NA_character_ # will exclude "None" or malformed
+    )
   )
+# All
+contingency_table_all <- table(AT_VTE_therapy$PPX_ASA_status, AT_VTE_therapy$VTE_Status)
+fisher_result_all <- fisher.test(contingency_table_all)
+# Nested (Dual vs Single)
+contingency_table_dvs <- table(AT_VTE_therapy$Therapy_Group, AT_VTE_therapy$VTE_Status)
+fisher_result_dvs <- fisher.test(contingency_table_dvs)
+OR_dual_single <- sprintf(
+  "%.2f [%.2f–%.2f]",
+  fisher_result_dvs$estimate,
+  fisher_result_dvs$conf.int[1],
+  fisher_result_dvs$conf.int[2]
+)
 #- 5.3.3: Compute percentages for all groups
 row_totals <- rowSums(contingency_table_all)
 row_pct <- prop.table(contingency_table_all, margin = 1) * 100
@@ -100,5 +100,3 @@ n_pct_df_consol <- as.data.frame.matrix(
 )
 fisher_result_dvsvn <- fisher.test(contingency_table_extended)
 #! Manually copied this into prism at this point
-
-

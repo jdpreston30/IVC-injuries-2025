@@ -42,7 +42,7 @@ descriptive <- ternD(
   data = final_descriptive,
   force_ordinal = c(
     "ISS", "AIS_abdomen", "AIS_thorax", "AIS_spine",
-    "hospital_days", "hospital_days_72h","ICU_days","ICU_days_72h", "vent_days", "vent_days_72h"
+    "hospital_days", "hospital_days_72h","ICU_days","ICU_days_72h", "vent_days", "vent_days_72h", "time_to_ppx"
   ),
   output_docx = "Outputs/table1.docx",
   consider_normality = FALSE,

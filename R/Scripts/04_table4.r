@@ -18,7 +18,7 @@ T4 <- ternG(
   group_var = "any_VTE_index",
   force_ordinal = c(
     "ISS", "AIS_abdomen", "AIS_thorax", "AIS_spine",
-    "hospital_days", "ICU_days", "vent_days"
+    "hospital_days", "ICU_days", "vent_days", "time_to_ppx"
   ),
   descriptive = TRUE,
   output_docx = "Outputs/Table4.docx",
@@ -29,3 +29,4 @@ T4 <- ternG(
   show_test = FALSE,
   p_digits = 2
 )
+print(T4, n = Inf)

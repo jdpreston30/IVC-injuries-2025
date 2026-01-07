@@ -90,5 +90,5 @@ DC_ppx_RAVTEs <- list(
     ) %>%
       arrange(Label) %>%
       select(Label, N, Y, Total_col)
-#+ 7.8: Export base contingency as CSV
-output_csv(ST1, "ST1.csv")
+#+ 7.8: Export base contingency as XLSX
+write_xlsx(ST1, "Outputs/ST1.xlsx")

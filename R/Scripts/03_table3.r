@@ -38,8 +38,20 @@ timing_table <- VTE_days %>%
     )
   )) %>%
   select(first_DVT = first_DVT_day, first_IVCT = first_IVCT_day, first_PE = first_PE_day, first_VTE = first_VTE_day)
+#- 3.3.2: Create mean ± SD table
+timing_table_mean <- VTE_days %>%
+  select(first_VTE_day:first_PE_day) %>%
+  summarise(across(
+    everything(),
+    ~ sprintf(
+      "%.1f ± %.1f",
+      mean(.x, na.rm = TRUE),
+      sd(.x, na.rm = TRUE)
+    )
+  )) %>%
+  select(first_DVT = first_DVT_day, first_IVCT = first_IVCT_day, first_PE = first_PE_day, first_VTE = first_VTE_day)
 #! Manually put this into word, see below
-#- 3.3.2: Run Kruskal-Wallis
+#- 3.3.3: Run Kruskal-Wallis
 long_data_timing <- VTE_days %>%
   select(first_VTE_day, first_DVT_day, first_IVCT_day) %>%
   pivot_longer(cols = everything(), names_to = "Variable", values_to = "Value") %>%
@@ -130,5 +142,5 @@ timing_table_bind <- timing_table %>%
     Any_VTE = first_VTE
   )
 table3 <- bind_rows(summary_table_counts, timing_table_bind)
-output_csv(table3, "table3.csv")
+write_xlsx(table3, "Outputs/table3.xlsx")
 #! Manually copied this into word at this point
