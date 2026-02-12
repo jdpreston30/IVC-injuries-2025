@@ -66,12 +66,12 @@ AT_VTE_therapy <- VTE_therapy %>%
       TRUE ~ NA_character_ # will exclude "None" or malformed
     )
   )
-# All
+# All - 3x2 table uses Fisher-Freeman-Halton exact test
 contingency_table_all <- table(AT_VTE_therapy$PPX_ASA_status, AT_VTE_therapy$VTE_Status)
-fisher_result_all <- fisher.test(contingency_table_all)
-# Nested (Dual vs Single)
+fisher_result_all <- fisher.test(contingency_table_all)  # Fisher-Freeman-Halton for >2x2
+# Nested (Dual vs Single) - using Fisher's preferred method for 2x2 table
 contingency_table_dvs <- table(AT_VTE_therapy$Therapy_Group, AT_VTE_therapy$VTE_Status)
-fisher_result_dvs <- fisher.test(contingency_table_dvs)
+fisher_result_dvs <- fisher_method(contingency_table_dvs)
 OR_dual_single <- sprintf(
   "%.2f [%.2f–%.2f]",
   fisher_result_dvs$estimate,
@@ -98,5 +98,13 @@ n_pct_df_consol <- as.data.frame.matrix(
     dimnames = dimnames(contingency_table_extended)
   )
 )
-fisher_result_dvsvn <- fisher.test(contingency_table_extended)
+fisher_result_dvsvn <- fisher.test(contingency_table_extended)  # Fisher-Freeman-Halton for 3x2
+
+#- 5.3.5: Print summary of p-values for Figure 3
+cat("\n=== Figure 3 P-Values Summary ===\n\n")
+cat(sprintf("Overall (3x2 table, Fisher-Freeman-Halton): p = %.3f\n", fisher_result_all$p.value))
+cat(sprintf("Dual vs Single (2x2, Fisher's method):     p = %.3f\n", fisher_result_dvs$p.value))
+cat(sprintf("Dual/Single/None (3x2, Fisher-Freeman-H.): p = %.3f\n", fisher_result_dvsvn$p.value))
+cat(sprintf("\nOR Dual vs Single: %s\n\n", OR_dual_single))
+
 #! Manually copied this into prism at this point

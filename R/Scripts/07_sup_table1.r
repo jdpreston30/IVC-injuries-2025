@@ -52,11 +52,38 @@ Single_Dual_None <- base_contingency %>%
   ) %>%
   group_by(strategy_group) %>%
   summarise(across(c(N, Y), sum), .groups = "drop")
-#+ 7.5: Run fishers on all
-fisher.test(base_contingency %>% select(Y, N) %>% as.matrix())
-fisher.test(ASA_AC_combo %>% select(Y, N) %>% as.matrix())
-fisher.test(ANY_AC %>% select(Y, N) %>% as.matrix())
-fisher.test(Single_Dual_None %>% select(Y, N) %>% as.matrix())
+#+ 7.5: Run Fisher's preferred method on all tables and display results
+# Using Fisher's method (doubling minimum one-tailed p-value) for 2x2 comparisons
+# Using Fisher-Freeman-Halton for larger tables
+cat("\n=== Supplemental Table 1: P-Values (Fisher's Method) ===\n\n")
+
+cat("Base contingency (all groups):\n")
+p_base <- if (nrow(base_contingency) == 2) {
+  fisher_method(base_contingency %>% select(Y, N) %>% as.matrix())$p.value
+} else {
+  fisher.test(base_contingency %>% select(Y, N) %>% as.matrix())$p.value
+}
+cat(sprintf("  p = %.3f\n\n", p_base))
+
+cat("ASA/AC combinations:\n")
+p_combo <- if (nrow(ASA_AC_combo) == 2) {
+  fisher_method(ASA_AC_combo %>% select(Y, N) %>% as.matrix())$p.value
+} else {
+  fisher.test(ASA_AC_combo %>% select(Y, N) %>% as.matrix())$p.value
+}
+cat(sprintf("  p = %.3f\n\n", p_combo))
+
+cat("Any AC (±AC):\n")
+p_anyac <- fisher_method(ANY_AC %>% select(Y, N) %>% as.matrix())$p.value
+cat(sprintf("  p = %.3f\n\n", p_anyac))
+
+cat("Single/Dual/None:\n")
+p_sdn <- if (nrow(Single_Dual_None) == 2) {
+  fisher_method(Single_Dual_None %>% select(Y, N) %>% as.matrix())$p.value
+} else {
+  fisher.test(Single_Dual_None %>% select(Y, N) %>% as.matrix())$p.value
+}
+cat(sprintf("  p = %.3f\n\n", p_sdn))
 #+ 7.6: Return all contingency tables
 DC_ppx_RAVTEs <- list(
   base_contingency = base_contingency,
