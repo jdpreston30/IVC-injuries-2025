@@ -102,9 +102,9 @@ fisher_result_dvsvn <- fisher.test(contingency_table_extended)  # Fisher-Freeman
 
 #- 5.3.5: Print summary of p-values for Figure 3
 cat("\n=== Figure 3 P-Values Summary ===\n\n")
-cat(sprintf("Overall (3x2 table, Fisher-Freeman-Halton): p = %.3f\n", fisher_result_all$p.value))
+cat(sprintf("Overall (4x2 table, Fisher-Freeman-Halton): p = %.3f\n", fisher_result_all$p.value))
 cat(sprintf("Dual vs Single (2x2, Fisher's method):     p = %.3f\n", fisher_result_dvs$p.value))
-cat(sprintf("Dual/Single/None (3x2, Fisher-Freeman-H.): p = %.3f\n", fisher_result_dvsvn$p.value))
+cat(sprintf("Dual/Single/None (3x2, Fisher-Freeman-Halton): p = %.3f\n", fisher_result_dvsvn$p.value))
 cat(sprintf("\nOR Dual vs Single: %s\n\n", OR_dual_single))
 
 #! Manually copied this into prism at this point
